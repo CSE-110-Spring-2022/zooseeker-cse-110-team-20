@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ZooKeeperTeam20">
         <activity
+            android:name=".list_view_items"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

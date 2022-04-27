@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ZooKeeper Team 20</string>
+    <string name="SearchBar">search</string>
+
 </resources>
