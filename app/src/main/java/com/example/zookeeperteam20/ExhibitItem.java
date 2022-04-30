@@ -14,14 +14,14 @@ import java.util.Collections;
 import java.util.List;
 
 public class ExhibitItem {
-    public long id = 0;
-    public String name;
-    public String type;
-    public List<String> tags;
+    private long id = 0;
+    private String name;
+    private ZooData.VertexInfo.Kind kind;
+    private List<String> tags;
 
-    public ExhibitItem(String name, String type, List<String> tags){
+    public ExhibitItem(String name, ZooData.VertexInfo.Kind kind, List<String> tags){
         this.name = name;
-        this.type = type;
+        this.kind = kind;
         this.tags = tags;
     }
 
@@ -38,12 +38,16 @@ public class ExhibitItem {
         }
     }
 
+    public String getExhibitName() {
+        return this.name;
+    }
+
     @Override
     public String toString() {
         return "ExhibitItem{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", type='" + type + '\'' +
+                ", type='" + kind + '\'' +
                 ", tags=" + tags +
                 '}';
     }
