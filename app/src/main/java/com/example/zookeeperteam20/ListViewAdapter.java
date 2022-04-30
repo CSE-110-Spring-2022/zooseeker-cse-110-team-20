@@ -11,20 +11,17 @@ import java.util.List;
 import java.util.Locale;
 
 public class ListViewAdapter extends BaseAdapter {
-
-    // Declare Variables
-
     Context mContext;
     LayoutInflater inflater;
     private List<AnimalNames> animalNamesList = null;
-    private ArrayList<AnimalNames> arraylist;
+    private ArrayList<AnimalNames> animalList;
 
     public ListViewAdapter(Context context, List<AnimalNames> animalNamesList) {
         mContext = context;
         this.animalNamesList = animalNamesList;
         inflater = LayoutInflater.from(mContext);
-        this.arraylist = new ArrayList<AnimalNames>();
-        this.arraylist.addAll(animalNamesList);
+        this.animalList = new ArrayList<AnimalNames>();
+        this.animalList.addAll(animalNamesList);
     }
 
     public class ViewHolder {
@@ -67,9 +64,9 @@ public class ListViewAdapter extends BaseAdapter {
         charText = charText.toLowerCase(Locale.getDefault());
         animalNamesList.clear();
         if (charText.length() == 0) {
-            animalNamesList.addAll(arraylist);
+            animalNamesList.addAll(animalList);
         } else {
-            for (AnimalNames wp : arraylist) {
+            for (AnimalNames wp : animalList) {
                 if (wp.getAnimalName().toLowerCase(Locale.getDefault()).contains(charText)) {
                     animalNamesList.add(wp);
                 }
