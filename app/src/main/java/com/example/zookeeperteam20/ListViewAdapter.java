@@ -67,11 +67,18 @@ public class ListViewAdapter extends BaseAdapter {
         charText = charText.toLowerCase(Locale.getDefault());
         exhibitNamesList.clear();
         if (charText.length() == 0) {
-            exhibitNamesList.addAll(arraylist);
+            exhibitNamesList.clear();
+            //exhibitNamesList.addAll(arraylist);
         } else {
+            int count = 0;
             for (ExhibitItem wp : arraylist) {
+
                 if (wp.getExhibitName().toLowerCase(Locale.getDefault()).contains(charText)) {
                     exhibitNamesList.add(wp);
+                    count++;
+                }
+                if(count >= 7) {
+                    break;
                 }
             }
         }

@@ -8,10 +8,10 @@
 
 
     <SearchView
-        android:id = "@+id/search"
+        android:id="@+id/search"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-         />
+        android:iconifiedByDefault="true" />
 
     <ListView
         android:id="@+id/listview_Exhibits"

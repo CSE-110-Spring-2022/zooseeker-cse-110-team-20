@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
@@ -60,7 +61,10 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         adapter.setHasStableIds(true);
 
         editSearch = (SearchView) findViewById(R.id.search);
+        list.setVisibility(ListView.INVISIBLE);
         editSearch.setOnQueryTextListener(this);
+
+
 
         //recyclerView = findViewById(R.id.Exhibits);
         //recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -81,6 +85,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextChange(String newText) {
+        list.setVisibility(ListView.VISIBLE);
         String text = newText;
         adapter.filter(text);
         return false;
