@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.widget.SearchView;
 import android.widget.ListView;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
     //Variables
@@ -14,12 +15,22 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     SearchView editsearch;
     String[] animalNameList;
     ArrayList<AnimalNames> arraylist = new ArrayList<AnimalNames>();
+    List<String> tags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Takes a JSON file and gets the exhibits and then gets the list of tags.
+        List<ExhibitItem> exhibits = ExhibitItem.loadJSON(this, "sample_exhbits.json");
+        for(ExhibitItem i : exhibits){
+            for(String j : i.tags){
+                if(!tags.contains(j)){
+                    tags.add(j);
+                }
+            }
+        }
         //Generate sample data
 
         animalNameList = new String[]{"Lion","Tiger","Dog","Cat","Tortoise","Monkey"};
