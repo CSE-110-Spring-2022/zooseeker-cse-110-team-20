@@ -15,9 +15,20 @@
 
     <ListView
         android:id="@+id/listview_Exhibits"
-        android:layout_width="400dp"
-        android:layout_height="659dp"
+        android:layout_width="411dp"
+        android:layout_height="336dp"
         android:layout_below="@+id/search"
         app:layout_constraintTop_toBottomOf="@+id/search"
-        tools:layout_editor_absoluteX="11dp" />
+        tools:layout_editor_absoluteX="0dp" />
+
+    <TextView
+        android:id="@+id/count"
+        android:layout_width="86dp"
+        android:layout_height="39dp"
+        android:text="0"
+        android:textSize="68dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listview_Exhibits" />
 </androidx.constraintlayout.widget.ConstraintLayout>

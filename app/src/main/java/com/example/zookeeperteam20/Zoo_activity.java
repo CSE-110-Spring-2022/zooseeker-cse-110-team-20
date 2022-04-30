@@ -10,6 +10,8 @@ import java.util.Map;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -17,6 +19,7 @@ import android.widget.TextView;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.w3c.dom.Text;
 
 public class Zoo_activity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -24,7 +27,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
     ListViewAdapter adapter;
     SearchView editSearch;
     ArrayList<ExhibitItem> ExhibitsList = new ArrayList<ExhibitItem>();
-
+    int count;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +56,6 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         }
 
         adapter = new ListViewAdapter(this, ExhibitsList);
-
-
         list.setAdapter(adapter);
 
         AnimalAdapter adapter = new AnimalAdapter();
@@ -64,7 +65,15 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         list.setVisibility(ListView.INVISIBLE);
         editSearch.setOnQueryTextListener(this);
 
-
+        TextView counter = findViewById(R.id.count);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                ExhibitItem item = (ExhibitItem) list.getItemAtPosition(position);
+                count++;
+                counter.setText(String.valueOf(count));
+            }
+        });
 
         //recyclerView = findViewById(R.id.Exhibits);
         //recyclerView.setLayoutManager(new LinearLayoutManager(this));
