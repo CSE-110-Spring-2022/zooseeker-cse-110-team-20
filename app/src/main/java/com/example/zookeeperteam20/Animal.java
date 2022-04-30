@@ -1,4 +1,6 @@
-package com.example.zookeeperteam20;public class Animal {
+package com.example.zookeeperteam20;
+
+public class Animal {
     private String location;
     private int distance;
     Species species;
