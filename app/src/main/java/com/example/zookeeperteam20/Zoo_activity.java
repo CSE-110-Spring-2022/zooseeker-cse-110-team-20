@@ -28,6 +28,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
     SearchView editSearch;
     ArrayList<ExhibitItem> ExhibitsList = new ArrayList<ExhibitItem>();
     int count;
+    ArrayList<ExhibitItem> selected = new ArrayList<ExhibitItem>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +71,14 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ExhibitItem item = (ExhibitItem) list.getItemAtPosition(position);
+                selected.add(item);
                 count++;
                 counter.setText(String.valueOf(count));
+                Log.d("oof", selected.toString());
             }
         });
+
+        //for(listview itm : list.Items)
 
         //recyclerView = findViewById(R.id.Exhibits);
         //recyclerView.setLayoutManager(new LinearLayoutManager(this));
