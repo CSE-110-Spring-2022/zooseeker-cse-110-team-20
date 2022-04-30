@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ZooKeeperTeam20">
         <activity
-            android:name=".list_view_items"
+            android:name=".Zoo_activity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

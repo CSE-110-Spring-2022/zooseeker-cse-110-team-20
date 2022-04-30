@@ -8,6 +8,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
+    //Variables
     ListView list;
     ListViewAdapter adapter;
     SearchView editsearch;
@@ -45,12 +46,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     public boolean onQueryTextSubmit(String query) {
+
         return false;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        adapter.filter(newText);
+        String text = newText;
+        adapter.filter(text);
         return false;
     }
 
