@@ -35,8 +35,8 @@ public class Plan_activity extends AppCompatActivity {
     }
 
     public void onPlanClicked(View view) {
-        Intent intent = new Intent(this,Directions.class);
-        intent.putExtra("Directions", 0);
+        Intent intent = new Intent(this,DirectionsActivity.class);
+        //intent.putExtra("Directions", 0);
         startActivity(intent);
     }
 }
