@@ -1,6 +1,8 @@
 package com.example.zookeeperteam20;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
@@ -13,16 +15,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
-@Entity(tableName = "exhibit_items")
-public class ExhibitItem {
-    @PrimaryKey(autoGenerate = true)
-    private long id = 0;
 
-    @NonNull
+public class ExhibitItem implements Serializable {
+    public long id = 0;
     private String name;
     private ZooData.VertexInfo.Kind kind;
     private List<String> tags;
@@ -66,4 +66,5 @@ public class ExhibitItem {
                 ", tags=" + tags +
                 '}';
     }
+
 }

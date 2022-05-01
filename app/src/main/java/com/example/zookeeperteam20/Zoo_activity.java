@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -78,6 +79,10 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
+
+
+
+
         //for(listview itm : list.Items)
 
         //recyclerView = findViewById(R.id.Exhibits);
@@ -105,4 +110,15 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         return false;
     }
 
+    public void onPlanClicked(View view) {
+        Intent intent = new Intent(this,Plan_activity.class);
+        ArrayList<ExhibitItem> noRepeats = new ArrayList<ExhibitItem>();
+        for(ExhibitItem elem : selected) {
+            if(!noRepeats.contains(elem)) {
+                noRepeats.add(elem);
+            }
+        }
+        intent.putExtra("plan",noRepeats);
+        startActivity(intent);
+    }
 }
