@@ -2,6 +2,10 @@ package com.example.zookeeperteam20;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -13,13 +17,17 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
+@Entity(tableName = "exhibit_items")
 public class ExhibitItem {
+    @PrimaryKey(autoGenerate = true)
     private long id = 0;
+
+    @NonNull
     private String name;
     private ZooData.VertexInfo.Kind kind;
     private List<String> tags;
 
-    public ExhibitItem(String name, ZooData.VertexInfo.Kind kind, List<String> tags){
+    public ExhibitItem(@NonNull String name, ZooData.VertexInfo.Kind kind, List<String> tags){
         this.name = name;
         this.kind = kind;
         this.tags = tags;
@@ -42,6 +50,13 @@ public class ExhibitItem {
         return this.name;
     }
 
+    public ZooData.VertexInfo.Kind getKind(){
+        return this.kind;
+    }
+
+    public List<String> getTags(){
+        return this.tags;
+    }
     @Override
     public String toString() {
         return "ExhibitItem{" +
