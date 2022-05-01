@@ -67,14 +67,14 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         list.setVisibility(ListView.INVISIBLE);
         editSearch.setOnQueryTextListener(this);
 
-        TextView counter = findViewById(R.id.count);
+        TextView counter = findViewById(R.id.number);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ExhibitItem item = (ExhibitItem) list.getItemAtPosition(position);
                 selected.add(item);
                 count++;
-                counter.setText("Plan Size: " + String.valueOf(count));
+                counter.setText(String.valueOf(count));
                 Log.d("oof", selected.toString());
             }
         });

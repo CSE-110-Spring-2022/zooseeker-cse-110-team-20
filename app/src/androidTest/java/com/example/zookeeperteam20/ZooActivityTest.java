@@ -53,7 +53,7 @@ public class ZooActivityTest {
 
         scenario.onActivity(activity -> {
             SearchView search = activity.findViewById(R.id.search);
-            TextView counter = activity.findViewById(R.id.count);
+            TextView counter = activity.findViewById(R.id.number);
             ListView list = activity.findViewById(R.id.listview_Exhibits);
             search.setQuery("ele", false);
             list.performItemClick(
