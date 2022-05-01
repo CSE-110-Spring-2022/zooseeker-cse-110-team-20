@@ -81,6 +81,8 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
 
 
 
+
+
         //for(listview itm : list.Items)
 
         //recyclerView = findViewById(R.id.Exhibits);
@@ -110,6 +112,13 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
 
     public void onPlanClicked(View view) {
         Intent intent = new Intent(this,Plan_activity.class);
+        ArrayList<ExhibitItem> noRepeats = new ArrayList<ExhibitItem>();
+        for(ExhibitItem elem : selected) {
+            if(!noRepeats.contains(elem)) {
+                noRepeats.add(elem);
+            }
+        }
+        intent.putExtra("plan",noRepeats);
         startActivity(intent);
     }
 }
