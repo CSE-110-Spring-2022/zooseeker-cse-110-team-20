@@ -4,6 +4,10 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -16,13 +20,14 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
+
 public class ExhibitItem implements Serializable {
     public long id = 0;
     private String name;
     private ZooData.VertexInfo.Kind kind;
     private List<String> tags;
 
-    public ExhibitItem(String name, ZooData.VertexInfo.Kind kind, List<String> tags){
+    public ExhibitItem(@NonNull String name, ZooData.VertexInfo.Kind kind, List<String> tags){
         this.name = name;
         this.kind = kind;
         this.tags = tags;
@@ -45,6 +50,13 @@ public class ExhibitItem implements Serializable {
         return this.name;
     }
 
+    public ZooData.VertexInfo.Kind getKind(){
+        return this.kind;
+    }
+
+    public List<String> getTags(){
+        return this.tags;
+    }
     @Override
     public String toString() {
         return "ExhibitItem{" +
