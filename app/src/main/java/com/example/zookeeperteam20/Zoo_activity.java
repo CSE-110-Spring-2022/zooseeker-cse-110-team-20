@@ -30,7 +30,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
     ArrayList<ExhibitItem> ExhibitsList = new ArrayList<ExhibitItem>();
     int count;
     ArrayList<ExhibitItem> selected = new ArrayList<ExhibitItem>();
-
+    ArrayList<ExhibitItem> noRepeats = new ArrayList<ExhibitItem>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +74,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
                 ExhibitItem item = (ExhibitItem) list.getItemAtPosition(position);
                 selected.add(item);
                 count++;
-                counter.setText(String.valueOf(count));
+                counter.setText("Plan Size: " + String.valueOf(count));
                 Log.d("oof", selected.toString());
             }
         });
@@ -112,7 +112,6 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
 
     public void onPlanClicked(View view) {
         Intent intent = new Intent(this,Plan_activity.class);
-        ArrayList<ExhibitItem> noRepeats = new ArrayList<ExhibitItem>();
         for(ExhibitItem elem : selected) {
             if(!noRepeats.contains(elem)) {
                 noRepeats.add(elem);

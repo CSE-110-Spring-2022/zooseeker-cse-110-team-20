@@ -23,27 +23,27 @@
 
     <TextView
         android:id="@+id/count"
-        android:layout_width="153dp"
-        android:layout_height="83dp"
-        android:text="0"
-        android:textSize="68dp"
+        android:layout_width="164dp"
+        android:layout_height="33dp"
+        android:text="Plan Size: 0"
+        android:textSize="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.062"
+        app:layout_constraintHorizontal_bias="0.063"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listview_Exhibits"
-        app:layout_constraintVertical_bias="0.635" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.94" />
 
     <Button
         android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Plan"
+        android:layout_width="98dp"
+        android:layout_height="63dp"
         android:onClick="onPlanClicked"
+        android:text="Plan"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/search"
-        app:layout_constraintHorizontal_bias="0.917"
+        app:layout_constraintHorizontal_bias="0.949"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.942" />
+        app:layout_constraintVertical_bias="0.956" />
 </androidx.constraintlayout.widget.ConstraintLayout>
