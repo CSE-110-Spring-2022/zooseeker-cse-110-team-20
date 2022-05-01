@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ZooKeeperTeam20">
         <activity
+            android:name=".DirectionsActivity"
+            android:exported="false" />
+        <activity
             android:name=".Plan_activity"
             android:exported="false" />
         <activity
