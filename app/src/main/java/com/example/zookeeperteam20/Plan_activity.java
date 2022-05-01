@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,5 +32,11 @@ public class Plan_activity extends AppCompatActivity {
 
         Log.d("oof",selected.toString());
 
+    }
+
+    public void onPlanClicked(View view) {
+        Intent intent = new Intent(this,Directions.class);
+        intent.putExtra("Directions", 0);
+        startActivity(intent);
     }
 }
