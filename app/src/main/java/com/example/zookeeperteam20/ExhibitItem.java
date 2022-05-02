@@ -22,12 +22,13 @@ import java.util.List;
 
 
 public class ExhibitItem implements Serializable {
-    public long id = 0;
+    private String id;
     private String name;
     private ZooData.VertexInfo.Kind kind;
     private List<String> tags;
 
-    public ExhibitItem(@NonNull String name, ZooData.VertexInfo.Kind kind, List<String> tags){
+    public ExhibitItem(String id,@NonNull String name, ZooData.VertexInfo.Kind kind, List<String> tags){
+        this.id = id;
         this.name = name;
         this.kind = kind;
         this.tags = tags;
@@ -45,7 +46,7 @@ public class ExhibitItem implements Serializable {
             return Collections.emptyList();
         }
     }
-
+    public String getId() {return this.id;}
     public String getExhibitName() {
         return this.name;
     }

@@ -33,7 +33,7 @@ public class ShortestDistance {
         List<String> unvisited = new ArrayList<String>();
 
         for (ExhibitItem item : noRepeats) {
-            String name = item.getExhibitName();
+            String name = item.getId();
             unvisited.add(name);
         }
 //        for (String item : testing) {
@@ -45,6 +45,7 @@ public class ShortestDistance {
 
         Log.d("unvisitied", unvisited.toString());
         unvisited.remove(startNode);
+        Log.d("GraphTag",g.toString());
 
         while (unvisited.size() > 1) {
             unvisited.remove(startNode);
@@ -55,6 +56,7 @@ public class ShortestDistance {
 
 
             for (String endNode : unvisited) {
+                Log.d("Check", startNode + endNode);
                 GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, startNode, endNode);
                 if (minDist > path.getWeight()) {
                     minDist = path.getWeight();
