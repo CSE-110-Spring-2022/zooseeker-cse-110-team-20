@@ -44,6 +44,37 @@ public class ZooActivityTest {
 
     */
     @Test
+    public void testCountSearch(){
+        ActivityScenario<Zoo_activity> scenario
+                = ActivityScenario.launch(Zoo_activity.class);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+
+        scenario.onActivity(activity -> {
+            SearchView search = activity.findViewById(R.id.search);
+            ListView list = activity.findViewById(R.id.listview_Exhibits);
+            search.setQuery("ele", false);
+            assertEquals(1, list.getCount());
+        });
+    }
+    @Test
+    public void testCorrectSearch(){
+        ActivityScenario<Zoo_activity> scenario
+                = ActivityScenario.launch(Zoo_activity.class);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+
+        scenario.onActivity(activity -> {
+            SearchView search = activity.findViewById(R.id.search);
+            ListView list = activity.findViewById(R.id.listview_Exhibits);
+            search.setQuery("ele", false);
+            ExhibitItem item = (ExhibitItem) list.getItemAtPosition(0);
+            assertEquals("Elephant Odyssey", item.getExhibitName());
+        });
+    }
+    @Test
     public void testCounter(){
         ActivityScenario<Zoo_activity> scenario
                 = ActivityScenario.launch(Zoo_activity.class);
