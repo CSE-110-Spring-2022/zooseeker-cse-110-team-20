@@ -1,4 +1,4 @@
-/*package com.example.zookeeperteam20;
+package com.example.zookeeperteam20;
 
 import android.text.Layout;
 import android.view.LayoutInflater;
@@ -9,54 +9,60 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-public class DirectionsAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder>{
-    private List<""> "" = Collections.emptyList();
-
-    public void setListItems() {
-        this."".clear();
-        this."" = new"";
+public class DirectionsAdapter extends RecyclerView.Adapter<DirectionsAdapter.ViewHolder>{
+    private ArrayList<Path> paths = new ArrayList<Path>();
+    public void setRouteItems(ArrayList<Path> newPaths) {
+        this.paths.clear();
+        this.paths = newPaths;
         notifyDataSetChanged();
     }
 
+
     @NonNull
     @Override
-    public PlanAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public DirectionsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.,parent,false);
+                .inflate(R.layout.directions_list,parent,false);
 
-        return new ViewHolder(view);
+        return new DirectionsAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PlanAdapter.ViewHolder holder, int position) {
-        holder.setitems("".get(position));
+    public void onBindViewHolder(@NonNull DirectionsAdapter.ViewHolder holder, int position) {
+        holder.setP(paths.get(position),position);
     }
 
     @Override
     public int getItemCount() {
-        return "".size();
+        return paths.size();
     }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;
-        private someItem item;
+        private Path p;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.textView = itemView.findViewById(R.id.)
+            this.textView = itemView.findViewById(R.id.directions_view);
         }
 
-        public getItem() {
-            return ;
+        public Path getP() {
+
+            return p;
         }
 
-        public void setItem() {}
-        this.item = item;
-        this.textView.setText(big string);
+        public void setP(Path p, int position) {
+            this.p = p;
+            String numAdd = (position+1) + ". " + p.toString();
+            this.textView.setText(numAdd);
+        }
     }
-
-}*/
+}

@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 
@@ -19,6 +20,8 @@ import java.util.Map;
 public class Plan_activity extends AppCompatActivity {
 
     public RecyclerView recyclerView;
+    List<GraphPath<String, IdentifiedWeightedEdge>> route;
+    ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,9 +39,8 @@ public class Plan_activity extends AppCompatActivity {
         ArrayList<ExhibitItem> selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
         ShortestDistance shortDist = new ShortestDistance(g,selected);
 
-        List<GraphPath<String, IdentifiedWeightedEdge>> route = shortDist.getShortest();
+        route = shortDist.getShortest();
         Log.d("route",route.toString());
-        ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
         ExhibitItem ex;
         //selected.clear();
         ArrayList<String> test1 = new ArrayList<String>();
@@ -67,9 +69,9 @@ public class Plan_activity extends AppCompatActivity {
     }
 
     public void onPlanClicked(View view) {
-       // Intent intent = new Intent(this,DirectionsActivity.class);
-        //intent.putExtra("Directions", 0);
-        //startActivity(intent);
+       Intent intent = new Intent(this, DirectionsActivity.class);
+       intent.putExtra("Directions", ordered);
+       startActivity(intent);
 
     }
 }
