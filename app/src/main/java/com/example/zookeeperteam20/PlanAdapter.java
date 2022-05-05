@@ -40,10 +40,10 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
         return exhibitItems.size();
     }
 
-    @Override
+    /*@Override
     public long getItemId(int position) {
         return exhibitItems.get(position).id;
-    }
+    }*/
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView textView;

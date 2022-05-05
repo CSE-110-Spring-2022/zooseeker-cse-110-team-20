@@ -51,7 +51,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         ExhibitItem e0;
         for (ZooData.VertexInfo node : vInfo.values()) {
             if (node.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
-                e0 = new ExhibitItem(node.name,node.kind,node.tags);
+                e0 = new ExhibitItem(node.id,node.name,node.kind,node.tags);
                 ExhibitsList.add(e0);
                 Log.d("ZooData", node.name);
             }
