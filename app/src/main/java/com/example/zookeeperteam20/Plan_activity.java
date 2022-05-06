@@ -22,6 +22,7 @@ public class Plan_activity extends AppCompatActivity {
     public RecyclerView recyclerView;
     List<GraphPath<String, IdentifiedWeightedEdge>> route;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
+    ArrayList<ExhibitItem> selected = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,7 +37,7 @@ public class Plan_activity extends AppCompatActivity {
 
         Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
-        ArrayList<ExhibitItem> selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
+        selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
         ShortestDistance shortDist = new ShortestDistance(g,selected);
 
         route = shortDist.getShortest();
