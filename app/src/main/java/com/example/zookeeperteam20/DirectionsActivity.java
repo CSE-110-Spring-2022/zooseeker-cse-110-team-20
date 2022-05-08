@@ -22,8 +22,8 @@ public class DirectionsActivity extends AppCompatActivity {
     public RecyclerView recyclerView;
     List<GraphPath<String, IdentifiedWeightedEdge>> route;
     ArrayList<Path> pathsBetweenExhibits = new ArrayList<Path>();
-    DirectionsAdapter adapter = new DirectionsAdapter();
     Graph<String, IdentifiedWeightedEdge> g;
+    DirectionsAdapter adapter = new DirectionsAdapter();
     Map<String, ZooData.VertexInfo> vInfo;
     Map<String, ZooData.EdgeInfo> eInfo;
     int whereToCount = 0;
@@ -45,7 +45,7 @@ public class DirectionsActivity extends AppCompatActivity {
         //Shortest Route created
         ShortestDistance shortDist = new ShortestDistance(g,ordered);
         route = shortDist.getShortest();
-        DirectionsAdapter adapter = new DirectionsAdapter();
+        adapter = new DirectionsAdapter();
         //DirectionsAdapter adapter = new DirectionsAdapter();
         adapter.setHasStableIds(true);
 
@@ -77,6 +77,7 @@ public class DirectionsActivity extends AppCompatActivity {
             ArrayList<Path> nextPath = new ArrayList<Path>();
             Log.d("Click", route.get(count).toString());
             Path p;
+
             for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                         vInfo.get(g.getEdgeTarget(e).toString()).name
@@ -91,9 +92,10 @@ public class DirectionsActivity extends AppCompatActivity {
                 nextPath.add(p);
             }
             //testList.add(test);
-
+            Log.d("CheckNext", nextPath.toString());
             adapter.setRouteItems(nextPath);
             count++;
+
             TextView wT = findViewById(R.id.whereTo);
             if (whereToCount < ordered.size() ) {
                 wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());

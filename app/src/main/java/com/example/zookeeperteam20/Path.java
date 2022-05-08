@@ -29,6 +29,12 @@ public class Path {
         this.target = target;
     }
 
+    public void swap() {
+        String temp = this.source;
+        setSource(this.target);
+        setTarget(temp);
+    }
+
     @Override
     public String toString() {
         return "Walk " + this.distance
