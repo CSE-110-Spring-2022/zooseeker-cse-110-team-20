@@ -37,10 +37,9 @@ public class Path {
 
     @Override
     public String toString() {
-        return "Walk " + this.distance
-                + " meters along " +
-                this.street + " from " +
-                this.source + " to " +
+        return "Proceed " + this.distance
+                + " feet along " +
+                this.street + " to " +
                 this.target;
     }
 
