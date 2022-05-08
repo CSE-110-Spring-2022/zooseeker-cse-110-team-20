@@ -106,7 +106,7 @@ public class DirectionsActivity extends AppCompatActivity {
             }
         }
         else {
-
+            Utilities.showAlert(this, "Route is completed");
         }
 
     }
