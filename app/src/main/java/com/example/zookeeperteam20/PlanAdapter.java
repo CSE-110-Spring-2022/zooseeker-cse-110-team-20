@@ -60,7 +60,7 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
 
         public void setExhibitItem(ExhibitItem exhibitItem) {
             this.exhibitItem = exhibitItem;
-            this.textView.setText(exhibitItem.getExhibitName());
+            this.textView.setText(exhibitItem.getExhibitName() + " :  " + exhibitItem.getLocation() + "   " + exhibitItem.getDistance() + "meters");
         }
 
     }

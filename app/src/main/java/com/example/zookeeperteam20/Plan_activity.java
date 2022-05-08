@@ -23,6 +23,7 @@ public class Plan_activity extends AppCompatActivity {
     List<GraphPath<String, IdentifiedWeightedEdge>> route;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
     ArrayList<ExhibitItem> selected = new ArrayList<>();
+    Map<String, ZooData.EdgeInfo> eInfo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +38,7 @@ public class Plan_activity extends AppCompatActivity {
 
         Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
+        eInfo = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
         selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
 
         ShortestDistance shortDist = new ShortestDistance(g,selected);
@@ -65,9 +67,20 @@ public class Plan_activity extends AppCompatActivity {
             }
         }
 
-        adapter.setExhibitItems(selected);
+        double totDistance = 0;
+        for(int i = 0; i < ordered.size(); i++){
+            totDistance = 0;
+            for (IdentifiedWeightedEdge e : route.get(i).getEdgeList()) {
+                totDistance += g.getEdgeWeight(e);
+                if(route.get(i).getEdgeList().size()-1 == route.get(i).getEdgeList().indexOf(e)){
+                    ordered.get(i).setLocation(eInfo.get(e.getId()).street);
+                }
+            }
+            ordered.get(i).setDistance(totDistance);
+        }
+        adapter.setExhibitItems(ordered);
 
-        Log.d("oof",selected.toString());
+        Log.d("oof",ordered.toString());
 
     }
 
