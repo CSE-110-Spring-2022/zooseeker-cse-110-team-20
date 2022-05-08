@@ -21,6 +21,14 @@ public class Path {
 
     public String getStreet() { return this.street;}
 
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
     @Override
     public String toString() {
         return "Walk " + this.distance

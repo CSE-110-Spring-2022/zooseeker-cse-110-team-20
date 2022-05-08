@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
@@ -25,7 +26,8 @@ public class DirectionsActivity extends AppCompatActivity {
     Graph<String, IdentifiedWeightedEdge> g;
     Map<String, ZooData.VertexInfo> vInfo;
     Map<String, ZooData.EdgeInfo> eInfo;
-
+    int whereToCount = 0;
+    ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +35,7 @@ public class DirectionsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_directions);
 
         // Extract ordered from PlanActivity
-        ArrayList<ExhibitItem> ordered = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("Directions");
+        ordered = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("Directions");
         Log.d("Directions UI", ordered.toString());
 
         //Load Graph, VetexInfo, and EdgeInfo
@@ -46,6 +48,11 @@ public class DirectionsActivity extends AppCompatActivity {
 
         //DirectionsAdapter adapter = new DirectionsAdapter();
         adapter.setHasStableIds(true);
+
+        // Set title of activity (text at top)
+        TextView wT = findViewById(R.id.whereTo);
+        wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+        whereToCount++;
 
        recyclerView = findViewById(R.id.directions_list);
        recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -75,11 +82,26 @@ public class DirectionsActivity extends AppCompatActivity {
                         vInfo.get(g.getEdgeTarget(e).toString()).name
                         , g.getEdgeWeight(e),
                         eInfo.get(e.getId()).street);
+               /* if(nextPath.size() > 0) {
+                    if (nextPath.get(nextPath.size() - 1).getTarget() == p.getTarget()) {
+                        p.setTarget(p.getSource());
+                        p.setSource(nextPath.get(nextPath.size() - 1).getTarget());
+                    }
+                }*/
                 nextPath.add(p);
             }
             //testList.add(test);
+
             adapter.setRouteItems(nextPath);
             count++;
+            TextView wT = findViewById(R.id.whereTo);
+            if (whereToCount < ordered.size() ) {
+                wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+                whereToCount++;
+            }
+            else {
+                wT.setText("Directions to Exit");
+            }
         }
         else {
 
