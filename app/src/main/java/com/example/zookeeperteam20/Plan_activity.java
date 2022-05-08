@@ -38,6 +38,7 @@ public class Plan_activity extends AppCompatActivity {
         Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
         selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
+
         ShortestDistance shortDist = new ShortestDistance(g,selected);
 
         route = shortDist.getShortest();
@@ -63,7 +64,8 @@ public class Plan_activity extends AppCompatActivity {
                 }
             }
         }
-        adapter.setExhibitItems(ordered);
+
+        adapter.setExhibitItems(selected);
 
         Log.d("oof",selected.toString());
 
