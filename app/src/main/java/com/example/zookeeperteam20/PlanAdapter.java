@@ -65,6 +65,9 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
 
         public void setExhibitItem(ExhibitItem exhibitItem, int position,ArrayList<Double> dists) {
             this.exhibitItem = exhibitItem;
+            
+            //this.textView.setText(exhibitItem.getExhibitName() + " :  " + exhibitItem.getLocation() + "   " + exhibitItem.getDistance() + "meters");
+  
             String numAdd = (position+1) + ". " + exhibitItem.getExhibitName()  + " - " + dists.get(position)
                     + " meters away";
             this.textView.setText(numAdd);

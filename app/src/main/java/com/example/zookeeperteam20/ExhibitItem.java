@@ -26,6 +26,8 @@ public class ExhibitItem implements Serializable {
     private String name;
     private ZooData.VertexInfo.Kind kind;
     private List<String> tags;
+    private double distance;
+    private String location;
 
     public ExhibitItem(String id,@NonNull String name, ZooData.VertexInfo.Kind kind, List<String> tags){
         this.id = id;
@@ -57,6 +59,19 @@ public class ExhibitItem implements Serializable {
 
     public List<String> getTags(){
         return this.tags;
+    }
+
+    public void setDistance(double distance){
+        this.distance = distance;
+    }
+    public double getDistance(){
+        return this.distance;
+    }
+    public void setLocation(String location){
+        this.location = location;
+    }
+    public String getLocation(){
+        return this.location;
     }
     @Override
     public String toString() {

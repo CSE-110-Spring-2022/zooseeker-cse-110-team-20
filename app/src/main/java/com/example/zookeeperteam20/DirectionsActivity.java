@@ -45,7 +45,7 @@ public class DirectionsActivity extends AppCompatActivity {
         //Shortest Route created
         ShortestDistance shortDist = new ShortestDistance(g,ordered);
         route = shortDist.getShortest();
-
+        DirectionsAdapter adapter = new DirectionsAdapter();
         //DirectionsAdapter adapter = new DirectionsAdapter();
         adapter.setHasStableIds(true);
 
@@ -57,7 +57,7 @@ public class DirectionsActivity extends AppCompatActivity {
        recyclerView = findViewById(R.id.directions_list);
        recyclerView.setLayoutManager(new LinearLayoutManager(this));
        recyclerView.setAdapter(adapter);
-        Path p;
+       Path p;
 
            for(IdentifiedWeightedEdge e : route.get(0).getEdgeList()) {
                p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
