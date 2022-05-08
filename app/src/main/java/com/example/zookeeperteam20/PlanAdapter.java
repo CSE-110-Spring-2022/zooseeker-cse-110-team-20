@@ -32,7 +32,7 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.setExhibitItem(exhibitItems.get(position));
+        holder.setExhibitItem(exhibitItems.get(position),position);
     }
 
     @Override
@@ -58,9 +58,10 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
             return exhibitItem;
         }
 
-        public void setExhibitItem(ExhibitItem exhibitItem) {
+        public void setExhibitItem(ExhibitItem exhibitItem, int position) {
             this.exhibitItem = exhibitItem;
-            this.textView.setText(exhibitItem.getExhibitName());
+            String numAdd = (position+1) + ". " + exhibitItem.getExhibitName();
+            this.textView.setText(numAdd);
         }
 
     }
