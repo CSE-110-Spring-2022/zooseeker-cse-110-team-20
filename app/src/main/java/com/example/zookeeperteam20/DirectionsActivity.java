@@ -78,18 +78,42 @@ public class DirectionsActivity extends AppCompatActivity {
             Log.d("Click", route.get(count).toString());
             Path p;
 
+            // Create Initial NextPath
             for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                         vInfo.get(g.getEdgeTarget(e).toString()).name
                         , g.getEdgeWeight(e),
                         eInfo.get(e.getId()).street);
-               /* if(nextPath.size() > 0) {
-                    if (nextPath.get(nextPath.size() - 1).getTarget() == p.getTarget()) {
-                        p.setTarget(p.getSource());
-                        p.setSource(nextPath.get(nextPath.size() - 1).getTarget());
-                    }
-                }*/
                 nextPath.add(p);
+            }
+
+            //Filter and swap directions if necessary
+            if(whereToCount < ordered.size() ) {
+                for (int i = nextPath.size() - 1; i >= 0; i--) {
+                    if (i == nextPath.size() - 1) {
+                        if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                            nextPath.get(i).swap();
+                        }
+                    } else {
+                        if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                            nextPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+            else {
+                for( int i = nextPath.size() - 1; i >= 0; i--) {
+                    if(i == nextPath.size() - 1) {
+                        if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                            nextPath.get(i).swap();
+                        }
+                    }
+                    else {
+                        if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                            nextPath.get(i).swap();
+                        }
+                    }
+                }
             }
             //testList.add(test);
             Log.d("CheckNext", nextPath.toString());
@@ -106,7 +130,7 @@ public class DirectionsActivity extends AppCompatActivity {
             }
         }
         else {
-
+            Utilities.showAlert(this, "Route is completed");
         }
 
     }
