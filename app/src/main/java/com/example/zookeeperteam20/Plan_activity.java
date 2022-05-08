@@ -44,8 +44,15 @@ public class Plan_activity extends AppCompatActivity {
         ExhibitItem ex;
         //selected.clear();
         ArrayList<String> test1 = new ArrayList<String>();
+        double dist = 0.0;
+        ArrayList<Double> dists = new ArrayList<Double>();
         for(GraphPath<String, IdentifiedWeightedEdge> path : route) {
             test1.add(path.getEndVertex());
+            for(IdentifiedWeightedEdge e : path.getEdgeList()) {
+                dist += g.getEdgeWeight(e);
+            }
+            dists.add(dist);
+
 //            for(IdentifiedWeightedEdge e : path.getEdgeList()) {
 //                ZooData.VertexInfo vertexinfo = vInfo.get(g.getEdgeSource(e));
 //                ex = new ExhibitItem(vertexinfo.id,vertexinfo.name,vertexinfo.kind,vertexinfo.tags);
@@ -62,7 +69,7 @@ public class Plan_activity extends AppCompatActivity {
                 }
             }
         }
-        adapter.setExhibitItems(ordered);
+        adapter.setExhibitItems(ordered,dists);
 
         Log.d("oof",selected.toString());
 

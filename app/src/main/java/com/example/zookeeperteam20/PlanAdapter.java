@@ -8,15 +8,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
     private List<ExhibitItem> exhibitItems = Collections.emptyList();
-
-    public void setExhibitItems(List<ExhibitItem> newExhibitItems) {
+    private ArrayList<Double> dists = new ArrayList<Double>();
+    public void setExhibitItems(List<ExhibitItem> newExhibitItems, ArrayList<Double> dists) {
         this.exhibitItems.clear();
         this.exhibitItems = newExhibitItems;
+        this.dists = dists;
         notifyDataSetChanged();
     }
 
@@ -32,7 +37,7 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.setExhibitItem(exhibitItems.get(position),position);
+        holder.setExhibitItem(exhibitItems.get(position),position,dists);
     }
 
     @Override
@@ -58,9 +63,10 @@ public class PlanAdapter extends RecyclerView.Adapter<PlanAdapter.ViewHolder> {
             return exhibitItem;
         }
 
-        public void setExhibitItem(ExhibitItem exhibitItem, int position) {
+        public void setExhibitItem(ExhibitItem exhibitItem, int position,ArrayList<Double> dists) {
             this.exhibitItem = exhibitItem;
-            String numAdd = (position+1) + ". " + exhibitItem.getExhibitName();
+            String numAdd = (position+1) + ". " + exhibitItem.getExhibitName()  + " - " + dists.get(position)
+                    + " meters away";
             this.textView.setText(numAdd);
         }
 
