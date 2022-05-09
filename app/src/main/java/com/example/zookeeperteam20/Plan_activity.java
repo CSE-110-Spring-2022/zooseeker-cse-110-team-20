@@ -86,7 +86,7 @@ public class Plan_activity extends AppCompatActivity {
     //When Plan is clicked, we will forward data and go to new Activity
     public void onPlanClicked(View view) {
         if(ordered.size() == 0) {
-
+            Utilities.showAlert(this, "Plan is empty");
         }
         else {
             Intent intent = new Intent(this, DirectionsActivity.class);
