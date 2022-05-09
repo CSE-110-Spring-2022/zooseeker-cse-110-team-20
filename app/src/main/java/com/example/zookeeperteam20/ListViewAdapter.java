@@ -9,11 +9,11 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+//This adapter was inspired by source :
+// https://abhiandroid.com/ui/searchview#:~:text=%20SearchView%20Methods%20In%20Android%3A%20%201%20isIconfiedByDefault,hint%20text%20to%20display%20in%20the...%20More%20
 public class ListViewAdapter extends BaseAdapter {
 
     // Declare Variables
-
     Context mContext;
     LayoutInflater inflater;
     private List<ExhibitItem> exhibitNamesList = null;
@@ -66,6 +66,7 @@ public class ListViewAdapter extends BaseAdapter {
     public void filter(String charText) {
         charText = charText.toLowerCase(Locale.getDefault());
         exhibitNamesList.clear();
+        //Will ensure search results don't show
         if (charText.length() == 0) {
             exhibitNamesList.clear();
             //exhibitNamesList.addAll(arraylist);
@@ -77,6 +78,7 @@ public class ListViewAdapter extends BaseAdapter {
                     exhibitNamesList.add(wp);
                     count++;
                 }
+                //Max search results will be 7 to leave room to show current plan
                 if(count >= 7) {
                     break;
                 }

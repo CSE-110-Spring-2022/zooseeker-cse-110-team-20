@@ -29,6 +29,7 @@ public class Path {
         this.target = target;
     }
 
+    //Swap source and target, used to ensure directions are correct
     public void swap() {
         String temp = this.source;
         setSource(this.target);

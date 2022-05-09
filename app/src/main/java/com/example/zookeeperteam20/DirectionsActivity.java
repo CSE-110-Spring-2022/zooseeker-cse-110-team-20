@@ -28,7 +28,8 @@ public class DirectionsActivity extends AppCompatActivity {
     Map<String, ZooData.EdgeInfo> eInfo;
     int whereToCount = 0;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
-    ArrayList<Path> nextPath = new ArrayList<>();
+    ArrayList<Path> nextPath = new ArrayList<Path>();
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,11 +72,11 @@ public class DirectionsActivity extends AppCompatActivity {
     }
 
     public void onNextClicked(View view) {
-       // Path test = new Path("oof","oof",12,"lmao");
-       // ArrayList<Path> testList = new ArrayList<Path>();
         if(count < route.size()) {
             nextPath = new ArrayList<Path>();
-            Log.d("Click", route.get(count).toString());
+
+            Log.d("Click", route.get(count).toString()); //Used for debugging
+
             Path p;
 
             // Create Initial NextPath
@@ -101,6 +102,8 @@ public class DirectionsActivity extends AppCompatActivity {
                     }
                 }
             }
+            // Once ordered list has been traversed we will set up check if we need to swap directions
+            // on final directions to exit.
             else {
                 for( int i = nextPath.size() - 1; i >= 0; i--) {
                     if(i == nextPath.size() - 1) {
@@ -115,11 +118,12 @@ public class DirectionsActivity extends AppCompatActivity {
                     }
                 }
             }
-            //testList.add(test);
-            Log.d("CheckNext", nextPath.toString());
+
+            Log.d("CheckNext", nextPath.toString()); //Used for debugging
             adapter.setRouteItems(nextPath);
             count++;
 
+            //Updates title of page with correct exhibit we are trying to get to
             TextView wT = findViewById(R.id.whereTo);
             if (whereToCount < ordered.size() ) {
                 wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
@@ -130,6 +134,7 @@ public class DirectionsActivity extends AppCompatActivity {
             }
         }
         else {
+            //Warning shows up once route is completed
             Utilities.showAlert(this, "Route is completed");
         }
 
