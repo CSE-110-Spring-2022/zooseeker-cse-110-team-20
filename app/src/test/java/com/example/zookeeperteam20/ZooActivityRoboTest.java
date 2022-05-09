@@ -310,4 +310,25 @@ public class ZooActivityRoboTest {
             assertEquals("Entrance and Exit Gate", activity.nextPath.get(activity.nextPath.size()-1).target);
         });
     }
+
+    @Test
+    public void testCounterforRepeats() {
+        ActivityScenario<Zoo_activity> scenario
+                = ActivityScenario.launch(Zoo_activity.class);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+
+        scenario.onActivity(activity -> {
+            SearchView search = activity.findViewById(R.id.search);
+            TextView counter = activity.findViewById(R.id.number);
+            ListView list = activity.findViewById(R.id.listview_Exhibits);
+            search.setQuery("ele", false);
+            list.performItemClick(
+                    list.getAdapter().getView(0, null, null), 0, 0);
+            list.performItemClick(
+                    list.getAdapter().getView(0, null, null), 0, 0);
+            assertEquals("1", counter.getText());
+        });
+    }
 }
