@@ -241,39 +241,5 @@ public class ZooActivityRoboTest {
         scenario.onActivity(activity -> {
            assertEquals("Alligators", activity.pathsBetweenExhibits.get(activity.pathsBetweenExhibits.size()-1).target);
         });
-    }
-    @Test
-    public void nextItem(){
-        List<String> tagsGator = new ArrayList<String>();
-        List<String> tagsEle = new ArrayList<String>();
-        List<String> tagsFox = new ArrayList<String>();
-        ArrayList<ExhibitItem> ordered = new ArrayList<>();
-        tagsGator.add("alligator");
-        tagsGator.add("reptile");
-        tagsGator.add("gator");
-        tagsEle.add("elephant");
-        tagsEle.add("mammal");
-        tagsEle.add("africa");
-        tagsFox.add("arctic");
-        tagsFox.add("fox");
-        tagsFox.add("mammal");
-        ordered.add(new ExhibitItem("gators", "Alligators", ZooData.VertexInfo.Kind.EXHIBIT, tagsGator));
-        ordered.add(new ExhibitItem("elephant_odyssey", "Elephant Odyssey", ZooData.VertexInfo.Kind.EXHIBIT, tagsEle));
-        ordered.add(new ExhibitItem("arctic_foxes", "Arctic Foxes", ZooData.VertexInfo.Kind.EXHIBIT, tagsFox));
-        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
-        intent.putExtra("Directions", ordered);
-        ActivityScenario<DirectionsActivity> scenario
-                = ActivityScenario.launch(intent);
-        scenario.moveToState(Lifecycle.State.CREATED);
-        scenario.moveToState(Lifecycle.State.STARTED);
-        scenario.moveToState(Lifecycle.State.RESUMED);
-        scenario.onActivity(activity -> {
-            Button next = activity.findViewById(R.id.Next);
-            for(int i = 1; i < ordered.size(); i++){
-                next.performClick();
-                assertEquals(ordered.get(i).getExhibitName(), activity.nextPath.get(activity.nextPath.size()-1).target);
-            }
-        });
-    }
-
+    }  
 }
