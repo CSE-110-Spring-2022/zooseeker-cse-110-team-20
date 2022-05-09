@@ -20,8 +20,11 @@ import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
-
+/* This class represents the exhibits that we load from
+    a JSON file and
+ */
 public class ExhibitItem implements Serializable {
+    //Initializes variables of ExhibitItem
     private String id;
     private String name;
     private ZooData.VertexInfo.Kind kind;
@@ -29,6 +32,7 @@ public class ExhibitItem implements Serializable {
     private double distance;
     private String location;
 
+    //Constructor for ExhibitItem
     public ExhibitItem(String id,@NonNull String name, ZooData.VertexInfo.Kind kind, List<String> tags){
         this.id = id;
         this.name = name;

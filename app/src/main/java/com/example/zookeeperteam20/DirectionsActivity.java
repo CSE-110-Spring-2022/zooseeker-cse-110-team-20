@@ -28,7 +28,7 @@ public class DirectionsActivity extends AppCompatActivity {
     Map<String, ZooData.EdgeInfo> eInfo;
     int whereToCount = 0;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
-
+    ArrayList<Path> nextPath = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +74,7 @@ public class DirectionsActivity extends AppCompatActivity {
        // Path test = new Path("oof","oof",12,"lmao");
        // ArrayList<Path> testList = new ArrayList<Path>();
         if(count < route.size()) {
-            ArrayList<Path> nextPath = new ArrayList<Path>();
+            nextPath = new ArrayList<Path>();
             Log.d("Click", route.get(count).toString());
             Path p;
             for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
