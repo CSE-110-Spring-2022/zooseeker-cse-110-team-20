@@ -4,9 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.robolectric.shadows.ShadowInstrumentation.getInstrumentation;
+import static org.junit.Assert.assertTrue;
 
-import android.app.Instrumentation;
 import android.content.Intent;
 import android.widget.Button;
 import android.widget.ListView;
@@ -16,17 +15,14 @@ import android.widget.TextView;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import org.checkerframework.checker.units.qual.A;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 public class ZooActivityRoboTest {
@@ -51,7 +47,6 @@ public class ZooActivityRoboTest {
             assertEquals("Alligators", item2.getExhibitName());
             assertEquals("Arctic Foxes", item3.getExhibitName());
             assertEquals("Gorillas", item4.getExhibitName());
-
             assertEquals(4, list.getAdapter().getCount());
         });
     }
@@ -84,7 +79,7 @@ public class ZooActivityRoboTest {
             SearchView search = activity.findViewById(R.id.search);
             TextView counter = activity.findViewById(R.id.number);
             ListView list = activity.findViewById(R.id.listview_Exhibits);
-            search.setQuery("ele", false);
+            search.setQuery("a", false);
             list.performItemClick(
                     list.getAdapter().getView(0, null, null), 0, 0);
 
@@ -103,7 +98,7 @@ public class ZooActivityRoboTest {
         scenario.onActivity(activity -> {
             SearchView search = activity.findViewById(R.id.search);
             ListView list = activity.findViewById(R.id.listview_Exhibits);
-            search.setQuery("ele", false);
+            search.setQuery("a", false);
             ExhibitItem item = (ExhibitItem) list.getItemAtPosition(0);
             ArrayList<ExhibitItem> selected = activity.selected;
             list.performItemClick(
@@ -171,4 +166,81 @@ public class ZooActivityRoboTest {
             assertEquals(activity.noRepeats.size(), 2);
         });
     }
+
+    @Test
+    public void testDirections(){
+        List<String> tagsGator = new ArrayList<String>();
+        List<String> tagsEle = new ArrayList<String>();
+        List<String> tagsFox = new ArrayList<String>();
+        ArrayList<ExhibitItem> ordered = new ArrayList<>();
+        tagsGator.add("alligator");
+        tagsGator.add("reptile");
+        tagsGator.add("gator");
+        tagsEle.add("elephant");
+        tagsEle.add("mammal");
+        tagsEle.add("africa");
+        tagsFox.add("arctic");
+        tagsFox.add("fox");
+        tagsFox.add("mammal");
+        ordered.add(new ExhibitItem("gators", "Alligators", ZooData.VertexInfo.Kind.EXHIBIT, tagsGator));
+        ordered.add(new ExhibitItem("elephant_odyssey", "Elephant Odyssey", ZooData.VertexInfo.Kind.EXHIBIT, tagsEle));
+        ordered.add(new ExhibitItem("arctic_foxes", "Arctic Foxes", ZooData.VertexInfo.Kind.EXHIBIT, tagsFox));
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
+        intent.putExtra("Directions", ordered);
+        Intent planIntent = new Intent(ApplicationProvider.getApplicationContext(),  Plan_activity.class);
+        planIntent.putExtra("plan", ordered);
+        ActivityScenario<Plan_activity> planScenario
+                = ActivityScenario.launch(planIntent);
+        planScenario.moveToState(Lifecycle.State.CREATED);
+        planScenario.moveToState(Lifecycle.State.STARTED);
+        planScenario.moveToState(Lifecycle.State.RESUMED);
+        final double[] distance = new double[1];
+        planScenario.onActivity(activity -> {
+            distance[0] = 0.0;
+            distance[0] = activity.dists.get(0);
+        });
+        ActivityScenario<DirectionsActivity> scenario
+                = ActivityScenario.launch(intent);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        final double[] totDistance= new double[1];
+        totDistance[0] = 0.0;
+        scenario.onActivity(activity -> {
+            for(Path p : activity.pathsBetweenExhibits){
+                totDistance[0] = totDistance[0] + p.getDistance();
+            }
+        });
+        assertEquals(distance[0], totDistance[0], .0001);
+    }
+    @Test
+    public void testFirstExhibit(){
+        List<String> tagsGator = new ArrayList<String>();
+        List<String> tagsEle = new ArrayList<String>();
+        List<String> tagsFox = new ArrayList<String>();
+        ArrayList<ExhibitItem> ordered = new ArrayList<>();
+        tagsGator.add("alligator");
+        tagsGator.add("reptile");
+        tagsGator.add("gator");
+        tagsEle.add("elephant");
+        tagsEle.add("mammal");
+        tagsEle.add("africa");
+        tagsFox.add("arctic");
+        tagsFox.add("fox");
+        tagsFox.add("mammal");
+        ordered.add(new ExhibitItem("gators", "Alligators", ZooData.VertexInfo.Kind.EXHIBIT, tagsGator));
+        ordered.add(new ExhibitItem("elephant_odyssey", "Elephant Odyssey", ZooData.VertexInfo.Kind.EXHIBIT, tagsEle));
+        ordered.add(new ExhibitItem("arctic_foxes", "Arctic Foxes", ZooData.VertexInfo.Kind.EXHIBIT, tagsFox));
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
+        intent.putExtra("Directions", ordered);
+        ActivityScenario<DirectionsActivity> scenario
+                = ActivityScenario.launch(intent);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        scenario.onActivity(activity -> {
+           assertEquals("Alligators", activity.pathsBetweenExhibits.get(activity.pathsBetweenExhibits.size()-1).target);
+        });
+    }
+
 }
