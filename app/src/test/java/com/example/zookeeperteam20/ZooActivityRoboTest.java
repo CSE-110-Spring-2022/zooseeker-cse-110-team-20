@@ -241,6 +241,5 @@ public class ZooActivityRoboTest {
         scenario.onActivity(activity -> {
            assertEquals("Alligators", activity.pathsBetweenExhibits.get(activity.pathsBetweenExhibits.size()-1).target);
         });
-    }
-
+    }  
 }

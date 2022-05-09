@@ -29,7 +29,7 @@ public class DirectionsActivity extends AppCompatActivity {
     int whereToCount = 0;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
     ArrayList<Path> nextPath = new ArrayList<Path>();
-
+  
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +74,9 @@ public class DirectionsActivity extends AppCompatActivity {
     public void onNextClicked(View view) {
         if(count < route.size()) {
             nextPath = new ArrayList<Path>();
+
             Log.d("Click", route.get(count).toString()); //Used for debugging
+
             Path p;
 
             // Create Initial NextPath

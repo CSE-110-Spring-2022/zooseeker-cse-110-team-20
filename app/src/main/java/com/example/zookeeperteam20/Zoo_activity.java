@@ -49,7 +49,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
 
 
         list = (ListView) findViewById(R.id.listview_Exhibits);
-        //generate ExhibitItem List
+
         ExhibitItem e0;
         for (ZooData.VertexInfo node : vInfo.values()) {
             if (node.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
