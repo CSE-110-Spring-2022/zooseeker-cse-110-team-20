@@ -45,7 +45,7 @@ public class DirectionsActivity extends AppCompatActivity {
         //Shortest Route created
         ShortestDistance shortDist = new ShortestDistance(g,ordered);
         route = shortDist.getShortest();
-        DirectionsAdapter adapter = new DirectionsAdapter();
+        adapter = new DirectionsAdapter();
         //DirectionsAdapter adapter = new DirectionsAdapter();
         adapter.setHasStableIds(true);
 
