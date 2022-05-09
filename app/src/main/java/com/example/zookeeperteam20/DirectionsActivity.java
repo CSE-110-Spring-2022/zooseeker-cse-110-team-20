@@ -28,6 +28,7 @@ public class DirectionsActivity extends AppCompatActivity {
     Map<String, ZooData.EdgeInfo> eInfo;
     int whereToCount = 0;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
+    ArrayList<Path> nextPath = newArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,7 +72,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
     public void onNextClicked(View view) {
         if(count < route.size()) {
-            ArrayList<Path> nextPath = new ArrayList<Path>();
+            nextPath = new ArrayList<Path>();
             Log.d("Click", route.get(count).toString()); //Used for debugging
 
             Path p;
