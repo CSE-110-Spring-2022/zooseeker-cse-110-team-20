@@ -24,6 +24,7 @@ public class Plan_activity extends AppCompatActivity {
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
     ArrayList<ExhibitItem> selected = new ArrayList<>();
     Map<String, ZooData.EdgeInfo> eInfo;
+    ArrayList<Double> dists = new ArrayList<Double>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +50,6 @@ public class Plan_activity extends AppCompatActivity {
         //selected.clear();
         ArrayList<String> test1 = new ArrayList<String>();
         double dist = 0.0;
-        ArrayList<Double> dists = new ArrayList<Double>();
         for(GraphPath<String, IdentifiedWeightedEdge> path : route) {
             test1.add(path.getEndVertex());
             for(IdentifiedWeightedEdge e : path.getEdgeList()) {
