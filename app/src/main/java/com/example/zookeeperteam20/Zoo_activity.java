@@ -47,7 +47,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
 
 
         list = (ListView) findViewById(R.id.listview_Exhibits);
-        //generate ExhibitItem List
+
         ExhibitItem e0;
         for (ZooData.VertexInfo node : vInfo.values()) {
             if (node.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
@@ -79,22 +79,6 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-
-
-
-
-        //for(listview itm : list.Items)
-
-        //recyclerView = findViewById(R.id.Exhibits);
-        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //recyclerView.setAdapter(adapter);
-
-       // adapter.setExhibitData(vInfo);
-        /*for(IdentifiedWeightedEdge e :path.getEdgeList()) {
-            Log.d("ZooData1",eInfo.get(e.getId()).street );
-            Log.d("ZooData2",vInfo.get(g.getEdgeSource(e).toString()).name);
-            Log.d("ZooData3",vInfo.get(g.getEdgeTarget(e).toString()).name);
-        } */
     }
 
     @Override
