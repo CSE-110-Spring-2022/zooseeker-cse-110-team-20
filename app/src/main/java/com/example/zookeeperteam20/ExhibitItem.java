@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 /* This class represents the exhibits that we load from
-    a JSON file and
+    a JSON file and constructs an ExhibitItem from the data
  */
 public class ExhibitItem implements Serializable {
     //Initializes variables of ExhibitItem
@@ -40,6 +40,7 @@ public class ExhibitItem implements Serializable {
         this.tags = tags;
     }
 
+    //Method to construct a list of ExhibitItems from a JSON file
     public static List<ExhibitItem> loadJSON(Context context, String path) {
         try{
             InputStream input = context.getAssets().open(path);
@@ -52,7 +53,9 @@ public class ExhibitItem implements Serializable {
             return Collections.emptyList();
         }
     }
+
     public String getId() {return this.id;}
+
     public String getExhibitName() {
         return this.name;
     }
@@ -77,6 +80,7 @@ public class ExhibitItem implements Serializable {
     public String getLocation(){
         return this.location;
     }
+    //Converts Exhibititem into a string
     @Override
     public String toString() {
         return "ExhibitItem{" +
