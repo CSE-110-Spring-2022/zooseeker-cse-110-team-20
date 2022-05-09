@@ -28,7 +28,7 @@ public class DirectionsActivity extends AppCompatActivity {
     Map<String, ZooData.EdgeInfo> eInfo;
     int whereToCount = 0;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
-    ArrayList<Path> nextPath = new ArrayList<>();
+    ArrayList<Path> nextPath;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
