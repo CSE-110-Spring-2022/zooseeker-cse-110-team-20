@@ -16,7 +16,6 @@ public class ShortestDistance {
     Graph<String, IdentifiedWeightedEdge> g;
     String STARTEND = "entrance_exit_gate";
     ArrayList<ExhibitItem> noRepeats;
-    ArrayList<String> testing;
 
 
     ShortestDistance(Graph<String, IdentifiedWeightedEdge> g, ArrayList<ExhibitItem> noRepeats) {
@@ -28,7 +27,7 @@ public class ShortestDistance {
     // This method will output the shortest routes to visit all selected exhibits in noRepeats.
     public List<GraphPath<String, IdentifiedWeightedEdge>> getShortest() {
         // ArrayList that contains all unvisited exhibitions that we intend to visit
-        List<String> unvisited = new ArrayList<String>();
+        ArrayList<String> unvisited = new ArrayList<String>();
 
         // We obtain such list from the para noRepeats input obtained from UI
         for (ExhibitItem item : noRepeats) {
@@ -46,34 +45,40 @@ public class ShortestDistance {
         // Remove the entrance gate node from the unvisited list because it is already visited
         unvisited.remove(startNode);
 
-        // If thee are still unvisited exhibits remaining, we will find the path to the closest
-        // exhibits in the unvisited list, and so-on until we visit all desired exhibits.
-        while (unvisited.size() > 1) {
-            // We have visited our current starting exhibits
-            unvisited.remove(startNode);
+        if (unvisited.size() == 1) {
+            totalPath.add(DijkstraShortestPath.findPathBetween(g, STARTEND, unvisited.get(0)));
+            startNode = unvisited.get(0);
+        } else {
 
-            // Initialize a minimal distance param
-            double minDist = Double.POSITIVE_INFINITY;
+            // If thee are still unvisited exhibits remaining, we will find the path to the closest
+            // exhibits in the unvisited list, and so-on until we visit all desired exhibits.
+            while (unvisited.size() > 1) {
+                // We have visited our current starting exhibits
+                unvisited.remove(startNode);
 
-            // minimal path would be in minPath
-            GraphPath<String, IdentifiedWeightedEdge> minPath = null;
+                // Initialize a minimal distance param
+                double minDist = Double.POSITIVE_INFINITY;
 
-            // Find the closest next exhibit to the current location, then return the path and dist.
-            for (String endNode : unvisited) {
-                Log.d("Check", startNode + endNode);
-                GraphPath<String, IdentifiedWeightedEdge> path =
-                        DijkstraShortestPath.findPathBetween(g, startNode, endNode);
-                if (minDist > path.getWeight()) {
-                    minDist = path.getWeight();
-                    minPath = path;
+                // minimal path would be in minPath
+                GraphPath<String, IdentifiedWeightedEdge> minPath = null;
+
+                // Find the closest next exhibit to the current location, then return the path and dist.
+                for (String endNode : unvisited) {
+                    Log.d("Check", startNode + endNode);
+                    GraphPath<String, IdentifiedWeightedEdge> path =
+                            DijkstraShortestPath.findPathBetween(g, startNode, endNode);
+                    if (minDist > path.getWeight()) {
+                        minDist = path.getWeight();
+                        minPath = path;
+                    }
                 }
+
+                // Add the path to the closest exhibit to the total path list.
+                totalPath.add(minPath);
+
+                // Move current location to the next one.
+                startNode = minPath.getEndVertex();
             }
-
-            // Add the path to the closest exhibit to the total path list.
-            totalPath.add(minPath);
-
-            // Move current location to the next one.
-            startNode = minPath.getEndVertex();
         }
 
         // We have reached all destinations, exit the zoo!
