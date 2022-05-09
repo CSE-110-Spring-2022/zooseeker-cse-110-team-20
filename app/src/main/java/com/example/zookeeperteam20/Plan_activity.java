@@ -30,77 +30,69 @@ public class Plan_activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plan);
 
+        //Adapter set up
         PlanAdapter adapter = new PlanAdapter();
         adapter.setHasStableIds(true);
 
+        //RecyclerView set up
         recyclerView = findViewById(R.id.planList);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
+        //Info from Jsons loaded in
         Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
         eInfo = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
+
+        //selected loaded from zooActivity
         selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
 
+        //Sets up and calculate shortest Distance route
         ShortestDistance shortDist = new ShortestDistance(g,selected);
-
         route = shortDist.getShortest();
-        Log.d("route",route.toString());
+        Log.d("route",route.toString()); //Used for debugging
+
+
         ExhibitItem ex;
-        //selected.clear();
-        ArrayList<String> test1 = new ArrayList<String>();
+        ArrayList<String> singlePath = new ArrayList<String>();
         double dist = 0.0;
+        //Extract GraphPaths from route and create ArrayList of endVertex names
+        //Also sum up distance
         for(GraphPath<String, IdentifiedWeightedEdge> path : route) {
-            test1.add(path.getEndVertex());
+            singlePath.add(path.getEndVertex());
             for(IdentifiedWeightedEdge e : path.getEdgeList()) {
                 dist += g.getEdgeWeight(e);
             }
             dists.add(dist);
-
-//            for(IdentifiedWeightedEdge e : path.getEdgeList()) {
-//                ZooData.VertexInfo vertexinfo = vInfo.get(g.getEdgeSource(e));
-//                ex = new ExhibitItem(vertexinfo.id,vertexinfo.name,vertexinfo.kind,vertexinfo.tags);
-//                selected.add(ex);
-//                break;
-//            }
         }
-        Log.d("Test1 Array", test1.toString());
 
-        for(int i = 0; i < test1.size(); i++) {
+        Log.d("singlePath Array", singlePath.toString()); //Used for debugging
+
+        //We use this for loop to create new arrayList that has all exhibits of
+        // singlePath, meaning that no intersections will appear in plan
+        for(int i = 0; i < singlePath.size(); i++) {
             for(ExhibitItem exItem: selected) {
-                if (exItem.getId().equals(test1.get(i))) {
+                if (exItem.getId().equals(singlePath.get(i))) {
                     ordered.add(exItem);
                 }
             }
         }
-
-        /*
-        double totDistance = 0;
-        for(int i = 0; i < ordered.size(); i++){
-            totDistance = 0;
-            for (IdentifiedWeightedEdge e : route.get(i).getEdgeList()) {
-                totDistance += g.getEdgeWeight(e);
-                if(route.get(i).getEdgeList().size()-1 == route.get(i).getEdgeList().indexOf(e)){
-                    ordered.get(i).setLocation(eInfo.get(e.getId()).street);
-                }
-            }
-            ordered.get(i).setDistance(totDistance);
-        }
-        adapter.setExhibitItems(ordered);
-
-        Log.d("oof",ordered.toString());
-        */
-       
+        //adapter set
         adapter.setExhibitItems(ordered,dists);
-        
-        Log.d("oof",selected.toString());
+        Log.d("oof",selected.toString()); //used for debugging
 
     }
 
+    //When Plan is clicked, we will forward data and go to new Activity
     public void onPlanClicked(View view) {
-       Intent intent = new Intent(this, DirectionsActivity.class);
-       intent.putExtra("Directions", ordered);
-       startActivity(intent);
+        if(ordered.size() == 0) {
+
+        }
+        else {
+            Intent intent = new Intent(this, DirectionsActivity.class);
+            intent.putExtra("Directions", ordered);
+            startActivity(intent);
+        }
 
     }
 }
