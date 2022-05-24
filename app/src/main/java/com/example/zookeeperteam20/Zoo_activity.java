@@ -57,6 +57,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
                 e0 = new ExhibitItem(node.id,node.name,node.kind,new Tags(node.tags));
                 if (node.parent_id != null){
                     e0.setParentId(node.parent_id);
+                    e0.setParentName(vInfo.get(node.parent_id).name);
                 }
                 ExhibitsList.add(e0);
                 Log.d("ZooData", node.name);

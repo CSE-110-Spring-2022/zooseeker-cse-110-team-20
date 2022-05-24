@@ -58,7 +58,13 @@ public class ListViewAdapter extends BaseAdapter {
             holder = (ViewHolder) view.getTag();
         }
         // Set the results into TextViews
-        holder.name.setText(exhibitNamesList.get(position).getExhibitName());
+        if(!exhibitNamesList.get(position).getParentId().equals("NULLNULLNULL")) {
+            holder.name.setText(exhibitNamesList.get(position).getExhibitName() + " ( " +
+                    exhibitNamesList.get(position).getParentName() + " )");
+        }
+        else {
+            holder.name.setText(exhibitNamesList.get(position).getExhibitName());
+        }
         return view;
     }
 

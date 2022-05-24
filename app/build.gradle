@@ -30,6 +30,7 @@ android {
             includeAndroidResources = true
         }
     }
+    namespace 'com.example.zookeeperteam20'
 }
 
 dependencies {
