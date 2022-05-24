@@ -5,6 +5,10 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Index;
+import androidx.room.PrimaryKey;
 //import androidx.room.Entity;
 //import androidx.room.PrimaryKey;
 
@@ -23,17 +27,24 @@ import java.util.List;
 /* This class represents the exhibits that we load from
     a JSON file and constructs an ExhibitItem from the data
  */
+@Entity(tableName = "exhibit_items", indices = @Index(value = {"animal"}, unique = true))
 public class ExhibitItem implements Serializable {
     //Initializes variables of ExhibitItem
+    @PrimaryKey(autoGenerate = true)
+    public long value;
+
+    @NonNull
+
+    @ColumnInfo(name = "animal")
     private String id;
+
     private String name;
     private ZooData.VertexInfo.Kind kind;
-    private List<String> tags;
-    private double distance;
-    private String location;
+    private Tags tags;
+
 
     //Constructor for ExhibitItem
-    public ExhibitItem(String id,@NonNull String name, ZooData.VertexInfo.Kind kind, List<String> tags){
+    public ExhibitItem(@NonNull String id, String name, ZooData.VertexInfo.Kind kind, Tags tags){
         this.id = id;
         this.name = name;
         this.kind = kind;
@@ -60,26 +71,32 @@ public class ExhibitItem implements Serializable {
         return this.name;
     }
 
+    public String getName() {
+        return this.name;
+    }
     public ZooData.VertexInfo.Kind getKind(){
         return this.kind;
     }
 
-    public List<String> getTags(){
+    public Tags getTags(){
         return this.tags;
     }
 
-    public void setDistance(double distance){
-        this.distance = distance;
+    public void setId(@NonNull String id) {
+        this.id = id;
     }
-    public double getDistance(){
-        return this.distance;
+
+    public void setKind(ZooData.VertexInfo.Kind kind) {
+        this.kind = kind;
     }
-    public void setLocation(String location){
-        this.location = location;
+
+    public void setName(String name) {
+        this.name = name;
     }
-    public String getLocation(){
-        return this.location;
+    public void setTags(Tags tags){
+        this.tags = tags;
     }
+
     //Converts Exhibititem into a string
     @Override
     public String toString() {
