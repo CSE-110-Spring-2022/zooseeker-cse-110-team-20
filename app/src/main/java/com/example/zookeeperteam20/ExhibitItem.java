@@ -37,14 +37,14 @@ public class ExhibitItem implements Serializable {
 
     @ColumnInfo(name = "animal")
     private String id;
-
+    private String parentId = "NULLNULLNULL";
     private String name;
     private ZooData.VertexInfo.Kind kind;
     private Tags tags;
 
 
     //Constructor for ExhibitItem
-    public ExhibitItem(@NonNull String id, String name, ZooData.VertexInfo.Kind kind, Tags tags){
+    public ExhibitItem(@NonNull String id,String name, ZooData.VertexInfo.Kind kind, Tags tags){
         this.id = id;
         this.name = name;
         this.kind = kind;
@@ -67,6 +67,9 @@ public class ExhibitItem implements Serializable {
 
     public String getId() {return this.id;}
 
+    public String getParentId() {
+        return this.parentId;
+    }
     public String getExhibitName() {
         return this.name;
     }
@@ -86,6 +89,9 @@ public class ExhibitItem implements Serializable {
         this.id = id;
     }
 
+    public void setParentId(@NonNull String parentId) {
+        this.parentId = parentId;
+    }
     public void setKind(ZooData.VertexInfo.Kind kind) {
         this.kind = kind;
     }
