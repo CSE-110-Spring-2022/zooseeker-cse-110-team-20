@@ -40,15 +40,43 @@ public class Plan_activity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         //Info from Jsons loaded in
-        Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
-        Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
-        eInfo = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
+        Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "zoo_graph.json");
+        Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this,"zoo_node_info.json");
+        eInfo = ZooData.loadEdgeInfoJSON(this,"zoo_edge_info.json");
 
         //selected loaded from zooActivity
         selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
+        ExhibitItem parent;
+        ArrayList<ExhibitItem> noGroupRepeats = new ArrayList<ExhibitItem>();
+        for(ExhibitItem elem : selected){
+            if(elem.getParentId().equals("NULLNULLNULL")) {
+                noGroupRepeats.add(elem);
+            }
+            else {
+                parent = new ExhibitItem(vInfo.get(elem.getParentId()).id,
+                        vInfo.get(elem.getParentId()).name,
+                        vInfo.get(elem.getParentId()).kind,
+                        new Tags(vInfo.get(elem.getParentId()).tags));
+                if(noGroupRepeats.size() == 0) {
+                    noGroupRepeats.add(parent);
+                }
+                else {
+                    boolean check = true;
+                    for (ExhibitItem elemG : noGroupRepeats) {
+                        if (elemG.getId().equals(parent.getId())) {
+                            check = false;
+                        }
+                    }
+                    if(check) {
+                        noGroupRepeats.add(parent);
+                    }
 
+                }
+            }
+        }
         //Sets up and calculate shortest Distance route
-        ShortestDistance shortDist = new ShortestDistance(g,selected);
+        ShortestDistance shortDist = new ShortestDistance(g,noGroupRepeats);
+        Log.d("noGroupRepeats",noGroupRepeats.toString());
         route = shortDist.getShortest();
         Log.d("route",route.toString()); //Used for debugging
 
@@ -66,24 +94,26 @@ public class Plan_activity extends AppCompatActivity {
             dists.add(dist);
         }
 
+        Log.d("Dist", dists.toString());
         Log.d("singlePath Array", singlePath.toString()); //Used for debugging
 
         //We use this for loop to create new arrayList that has all exhibits of
         // singlePath, meaning that no intersections will appear in plan
         for(int i = 0; i < singlePath.size(); i++) {
-            for(ExhibitItem exItem: selected) {
-                if (exItem.getId().equals(singlePath.get(i))) {
+            for(ExhibitItem exItem: noGroupRepeats) {
+                if (exItem.getId().equals(singlePath.get(i)) || exItem.getParentId().equals(singlePath.get(i))) {
                     ordered.add(exItem);
                 }
             }
         }
         //adapter set
+        Log.d("ordered",ordered.toString());
         adapter.setExhibitItems(ordered,dists);
-        Log.d("oof",selected.toString()); //used for debugging
+        //Log.d("oof",selected.toString()); //used for debugging
 
     }
 
-    //When Plan is clicked, we will forward data and go to new Activity
+    //When Directions is clicked, we will forward data and go to new Activity
     public void onPlanClicked(View view) {
         if(ordered.size() == 0) {
             Utilities.showAlert(this, "Plan is empty");

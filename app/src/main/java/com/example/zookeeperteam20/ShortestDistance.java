@@ -30,8 +30,14 @@ public class ShortestDistance {
         ArrayList<String> unvisited = new ArrayList<String>();
 
         // We obtain such list from the para noRepeats input obtained from UI
+        String name = "";
         for (ExhibitItem item : noRepeats) {
-            String name = item.getId();
+            if(!item.getParentId().equals("NULLNULLNULL")) {
+                 name = item.getParentId();
+            }
+            else {
+                 name = item.getId();
+            }
             unvisited.add(name);
         }
 
@@ -46,6 +52,8 @@ public class ShortestDistance {
         unvisited.remove(startNode);
 
         if (unvisited.size() == 1) {
+            Log.d("unvisited",unvisited.toString());
+            Log.d("g",g.toString());
             totalPath.add(DijkstraShortestPath.findPathBetween(g, STARTEND, unvisited.get(0)));
             startNode = unvisited.get(0);
         } else {

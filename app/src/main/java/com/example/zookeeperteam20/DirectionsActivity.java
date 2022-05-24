@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DirectionsActivity extends AppCompatActivity {
-    int count = 1;
+    int count = 0;
     public RecyclerView recyclerView;
     List<GraphPath<String, IdentifiedWeightedEdge>> route;
     ArrayList<Path> pathsBetweenExhibits = new ArrayList<Path>();
@@ -29,6 +29,7 @@ public class DirectionsActivity extends AppCompatActivity {
     int whereToCount = 0;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
     ArrayList<Path> nextPath = new ArrayList<Path>();
+    ArrayList<Path> prevPath = new ArrayList<Path>();
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +41,9 @@ public class DirectionsActivity extends AppCompatActivity {
         Log.d("Directions UI", ordered.toString());
 
         //Load Graph, VetexInfo, and EdgeInfo
-        g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
-        vInfo = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
-        eInfo = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
+        g = ZooData.loadZooGraphJSON(this, "zoo_graph.json");
+        vInfo = ZooData.loadVertexInfoJSON(this,"zoo_node_info.json");
+        eInfo = ZooData.loadEdgeInfoJSON(this,"zoo_edge_info.json");
         //Shortest Route created
         ShortestDistance shortDist = new ShortestDistance(g,ordered);
         route = shortDist.getShortest();
@@ -53,26 +54,42 @@ public class DirectionsActivity extends AppCompatActivity {
         // Set title of activity (text at top)
         TextView wT = findViewById(R.id.whereTo);
         wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
-        whereToCount++;
+
 
        recyclerView = findViewById(R.id.directions_list);
        recyclerView.setLayoutManager(new LinearLayoutManager(this));
        recyclerView.setAdapter(adapter);
        Path p;
 
-           for(IdentifiedWeightedEdge e : route.get(0).getEdgeList()) {
-               p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
-                       vInfo.get(g.getEdgeTarget(e).toString()).name
-                       ,g.getEdgeWeight(e),
-                       eInfo.get(e.getId()).street);
-               pathsBetweenExhibits.add(p);
-           }
+       for(IdentifiedWeightedEdge e : route.get(0).getEdgeList()) {
+           p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                   vInfo.get(g.getEdgeTarget(e).toString()).name
+                   ,g.getEdgeWeight(e),
+                   eInfo.get(e.getId()).street);
+           pathsBetweenExhibits.add(p);
+       }
+
+
+       //Filter amd swap directions if necessary
+        if(whereToCount < ordered.size() ) {
+            for (int i = pathsBetweenExhibits.size() - 1; i >= 0; i--) {
+                if (i == pathsBetweenExhibits.size() - 1) {
+                    if (pathsBetweenExhibits.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                        pathsBetweenExhibits.get(i).swap();
+                    }
+                } else {
+                    if (pathsBetweenExhibits.get(i).getTarget().equals(pathsBetweenExhibits.get(i + 1).getSource()) != true) {
+                        pathsBetweenExhibits.get(i).swap();
+                    }
+                }
+            }
+        }
         adapter.setRouteItems(pathsBetweenExhibits);
 
     }
 
     public void onNextClicked(View view) {
-        if(count < route.size()) {
+        if(count < route.size() - 1) {
             nextPath = new ArrayList<Path>();
 
             Log.d("Click", route.get(count).toString()); //Used for debugging
@@ -80,6 +97,7 @@ public class DirectionsActivity extends AppCompatActivity {
             Path p;
 
             // Create Initial NextPath
+            count++;
             for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                         vInfo.get(g.getEdgeTarget(e).toString()).name
@@ -89,6 +107,7 @@ public class DirectionsActivity extends AppCompatActivity {
             }
 
             //Filter and swap directions if necessary
+            whereToCount++;
             if(whereToCount < ordered.size() ) {
                 for (int i = nextPath.size() - 1; i >= 0; i--) {
                     if (i == nextPath.size() - 1) {
@@ -121,13 +140,11 @@ public class DirectionsActivity extends AppCompatActivity {
 
             Log.d("CheckNext", nextPath.toString()); //Used for debugging
             adapter.setRouteItems(nextPath);
-            count++;
 
             //Updates title of page with correct exhibit we are trying to get to
             TextView wT = findViewById(R.id.whereTo);
             if (whereToCount < ordered.size() ) {
                 wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
-                whereToCount++;
             }
             else {
                 wT.setText("Directions to Exit");
@@ -139,4 +156,49 @@ public class DirectionsActivity extends AppCompatActivity {
         }
 
     }
+
+    public void onPreviousClicked(View view) {
+        if(count ==  0) {
+            Utilities.showAlert(this,"No previous directions available");
+        }
+        else {
+            count--;
+            prevPath = new ArrayList<Path>();
+            Path p;
+
+            for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+                p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                        vInfo.get(g.getEdgeTarget(e).toString()).name,
+                        g.getEdgeWeight(e),
+                        eInfo.get(e.getId()).street);
+                prevPath.add(p);
+            }
+
+            //Filter and swap directions if neccesary
+            whereToCount--;
+            if(whereToCount < ordered.size() ) {
+                for(int i = prevPath.size() - 1; i >= 0 ; i--) {
+                    if (i == prevPath.size() - 1) {
+                        if(prevPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                            prevPath.get(i).swap();
+                        }
+                    } else {
+                        if(prevPath.get(i).getTarget().equals(prevPath.get(i+1).getSource()) != true) {
+                            prevPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+            adapter.setRouteItems(prevPath);
+            TextView wT = findViewById(R.id.whereTo);
+            if (whereToCount < ordered.size() ) {
+                wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+            }
+            else {
+                wT.setText("Directions to Exit");
+            }
+
+        }
+    }
+
 }

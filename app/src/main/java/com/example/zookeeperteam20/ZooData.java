@@ -32,6 +32,7 @@ public class ZooData {
         }
 
         public String id;
+        public String parent_id;
         public Kind kind;
         public String name;
         public List<String> tags;
