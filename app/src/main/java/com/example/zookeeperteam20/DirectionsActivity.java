@@ -40,9 +40,9 @@ public class DirectionsActivity extends AppCompatActivity {
         Log.d("Directions UI", ordered.toString());
 
         //Load Graph, VetexInfo, and EdgeInfo
-        g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
-        vInfo = ZooData.loadVertexInfoJSON(this,"sample_node_info.json");
-        eInfo = ZooData.loadEdgeInfoJSON(this,"sample_edge_info.json");
+        g = ZooData.loadZooGraphJSON(this, "zoo_graph.json");
+        vInfo = ZooData.loadVertexInfoJSON(this,"zoo_node_info.json");
+        eInfo = ZooData.loadEdgeInfoJSON(this,"zoo_edge_info.json");
         //Shortest Route created
         ShortestDistance shortDist = new ShortestDistance(g,ordered);
         route = shortDist.getShortest();
@@ -139,4 +139,11 @@ public class DirectionsActivity extends AppCompatActivity {
         }
 
     }
+
+    public void onPreviousClicked(View view) {
+        if(count ==  0) {
+            Utilities.showAlert(this,"No previous directions available");
+        }
+    }
+
 }

@@ -17,6 +17,7 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
@@ -41,11 +42,11 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         //String start = "entrance_exit_gate";
         //String goal = "elephant_odyssey";
 
-        Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "sample_zoo_graph.json");
+        Graph<String, IdentifiedWeightedEdge> g = ZooData.loadZooGraphJSON(this, "zoo_graph.json");
         //GraphPath<String, IdentifiedWeightedEdge> path = DijkstraShortestPath.findPathBetween(g, start, goal);
 
-        Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
-        Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "sample_edge_info.json");
+        Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "zoo_node_info.json");
+        Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "zoo_edge_info.json");
 
 
         list = (ListView) findViewById(R.id.listview_Exhibits);
@@ -53,7 +54,10 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         ExhibitItem e0;
         for (ZooData.VertexInfo node : vInfo.values()) {
             if (node.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
-                e0 = new ExhibitItem(node.id,node.name,node.kind,node.tags);
+                e0 = new ExhibitItem(node.id,node.name,node.kind,new Tags(node.tags));
+                if (node.parent_id != null){
+                    e0.setParentId(node.parent_id);
+                }
                 ExhibitsList.add(e0);
                 Log.d("ZooData", node.name);
             }
