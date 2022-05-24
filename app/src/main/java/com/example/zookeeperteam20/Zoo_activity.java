@@ -1,6 +1,7 @@
 package com.example.zookeeperteam20;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,11 +32,16 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
     int count;
     ArrayList<ExhibitItem> selected = new ArrayList<ExhibitItem>();
     ArrayList<ExhibitItem> noRepeats = new ArrayList<ExhibitItem>();
+    public RecyclerView recyclerView;
+    boolean repeat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zoo);
+
+        ExhibitVModel viewModel = new ViewModelProvider(this)
+                .get(ExhibitVModel.class);
 
         // Variables set for
         //String start = "entrance_exit_gate";
@@ -46,6 +52,8 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
 
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "sample_node_info.json");
         Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "sample_edge_info.json");
+        ExhibitItemDao exhibitDao = ExhibitItemDatabase.getSingleton(this).exhibitItemDao();
+        List<ExhibitItem> exhibitItems = exhibitDao.getAll();
 
 
         list = (ListView) findViewById(R.id.listview_Exhibits);
@@ -53,7 +61,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         ExhibitItem e0;
         for (ZooData.VertexInfo node : vInfo.values()) {
             if (node.kind == ZooData.VertexInfo.Kind.EXHIBIT) {
-                e0 = new ExhibitItem(node.id,node.name,node.kind,node.tags);
+                e0 = new ExhibitItem(node.id,node.name,node.kind, new Tags(node.tags));
                 ExhibitsList.add(e0);
                 Log.d("ZooData", node.name);
             }
@@ -73,19 +81,38 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         list.setVisibility(ListView.INVISIBLE);
         editSearch.setOnQueryTextListener(this);
 
+        ExhibitAdapter eAdapter = new ExhibitAdapter();
+        eAdapter.setHasStableIds(true);
+        eAdapter.setExhibitItems(exhibitItems);
+        viewModel.getExhibitItems().observe(this, eAdapter::setExhibitItems);
+
+        //viewModel.clearAll();
+        recyclerView = findViewById(R.id.exhibit_items);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(eAdapter);
+
         //counter to count amount of times exhibits have been selected
         TextView counter = findViewById(R.id.number);
-
+        count = exhibitDao.getDataCount();
+        counter.setText(String.valueOf(count));
+        selected = (ArrayList<ExhibitItem>) exhibitDao.getAll();
         //Detect Clicks on search results and update Plan list and count accordingly
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ExhibitItem item = (ExhibitItem) list.getItemAtPosition(position);
-                if (!selected.contains(item)) {
+                repeat = false;
+                for(ExhibitItem e: selected){
+                    if (e.getName().equalsIgnoreCase(item.getName())) {
+                        repeat = true;
+                    }
+                }
+                if(!repeat){
                     count++;
                 }
                 selected.add(item);
                 counter.setText(String.valueOf(count));
+                viewModel.addExhibitItem(item);
                 //Log used to keep track of selected animals (ensures functionality working correctly)
                 Log.d("oof", selected.toString());
             }
