@@ -28,6 +28,7 @@ public class ZooData {
             // from the strings in our JSON to this Enum.
             @SerializedName("gate") GATE,
             @SerializedName("exhibit") EXHIBIT,
+            @SerializedName("exhibit_group") EXHIBITGROUP,
             @SerializedName("intersection") INTERSECTION
         }
 
