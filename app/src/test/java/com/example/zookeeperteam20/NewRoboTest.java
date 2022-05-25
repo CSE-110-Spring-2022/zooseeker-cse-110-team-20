@@ -1,11 +1,8 @@
 package com.example.zookeeperteam20;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
+import android.content.Context;
 import android.content.Intent;
 import android.widget.Button;
 import android.widget.ListView;
@@ -13,10 +10,13 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.room.Room;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -25,8 +25,23 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
-public class ZooActivityRoboTest {
-/*
+public class NewRoboTest {
+
+    @Before
+    public void resetDatabase() {
+        ExhibitItemDatabase testdb;
+        ExhibitItemDao exhibitItemDao;
+
+        Context context = ApplicationProvider.getApplicationContext();
+        testdb = Room.inMemoryDatabaseBuilder(context, ExhibitItemDatabase.class)
+                .allowMainThreadQueries()
+                .build();
+        ExhibitItemDatabase.injectTestDatabase(testdb);
+
+        exhibitItemDao = testdb.exhibitItemDao();
+        exhibitItemDao.clearAll();
+    }
+
     @Test
     public void testCorrectMultipleSearch(){
         ActivityScenario<Zoo_activity> scenario
@@ -38,15 +53,15 @@ public class ZooActivityRoboTest {
         scenario.onActivity(activity -> {
             SearchView search = activity.findViewById(R.id.search);
             ListView list = activity.findViewById(R.id.listview_Exhibits);
-            search.setQuery("a", false);
+            search.setQuery("ca", false);
             ExhibitItem item1 = (ExhibitItem) list.getItemAtPosition(0);
             ExhibitItem item2 = (ExhibitItem) list.getItemAtPosition(1);
             ExhibitItem item3 = (ExhibitItem) list.getItemAtPosition(2);
             ExhibitItem item4 = (ExhibitItem) list.getItemAtPosition(3);
-            assertEquals("Elephant Odyssey", item1.getExhibitName());
-            assertEquals("Alligators", item2.getExhibitName());
-            assertEquals("Arctic Foxes", item3.getExhibitName());
-            assertEquals("Gorillas", item4.getExhibitName());
+            assertEquals("Blue Capped Motmot", item1.getExhibitName());
+            assertEquals("Capuchin Monkeys", item2.getExhibitName());
+            assertEquals("Fern Canyon", item3.getExhibitName());
+            assertEquals("Toucan", item4.getExhibitName());
             assertEquals(4, list.getAdapter().getCount());
         });
     }
@@ -67,6 +82,7 @@ public class ZooActivityRoboTest {
             assertEquals(0, list.getAdapter().getCount());
         });
     }
+
     @Test
     public void testCounter() {
         ActivityScenario<Zoo_activity> scenario
@@ -110,26 +126,38 @@ public class ZooActivityRoboTest {
 
     @Test
     public void testAlgorithm(){
-        List<String> tagsGator = new ArrayList<String>();
-        List<String> tagsEle = new ArrayList<String>();
-        List<String> tagsFox = new ArrayList<String>();
+        List<String> stringsPA = new ArrayList<String>();
+        List<String> stringsCM = new ArrayList<String>();
+        List<String> stringsFC = new ArrayList<String>();
+
         ArrayList<String> answer = new ArrayList<>();
         ArrayList<ExhibitItem> selection = new ArrayList<>();
-        tagsGator.add("alligator");
-        tagsGator.add("reptile");
-        tagsGator.add("gator");
-        tagsEle.add("elephant");
-        tagsEle.add("mammal");
-        tagsEle.add("africa");
-        tagsFox.add("arctic");
-        tagsFox.add("fox");
-        tagsFox.add("mammal");
-        answer.add("Alligators");
-        answer.add("Elephant Odyssey");
-        answer.add("Arctic Foxes");
-        selection.add(new ExhibitItem("elephant_odyssey", "Elephant Odyssey", ZooData.VertexInfo.Kind.EXHIBIT, tagsEle));
-        selection.add(new ExhibitItem("gators", "Alligators", ZooData.VertexInfo.Kind.EXHIBIT, tagsGator));
-        selection.add(new ExhibitItem("arctic_foxes", "Arctic Foxes", ZooData.VertexInfo.Kind.EXHIBIT, tagsFox));
+
+
+        stringsFC.add("plants");
+        stringsFC.add("ferns");
+        stringsFC.add("green");
+
+        stringsCM.add("tufted");
+        stringsCM.add("capuchin");
+        stringsCM.add("monkey");
+        stringsCM.add("mammal");
+        stringsCM.add("primate");
+        stringsCM.add("south");
+        stringsCM.add("america");
+
+        Tags tagsPA = new Tags(stringsPA);
+        Tags tagsCM = new Tags(stringsCM);
+        Tags tagsFC = new Tags(stringsFC);
+
+        answer.add("Parker Aviary");
+        answer.add("Fern Canyon");
+        answer.add("Capuchin Monkeys");
+
+        selection.add(new ExhibitItem("parker_aviary", "Parker Aviary", ZooData.VertexInfo.Kind.EXHIBITGROUP, tagsPA));
+        selection.add(new ExhibitItem("fern_canyon", "Fern Canyon", ZooData.VertexInfo.Kind.EXHIBIT, tagsFC));
+        selection.add(new ExhibitItem("capuchin", "Capuchin Monkeys", ZooData.VertexInfo.Kind.EXHIBIT, tagsCM));
+
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(), Plan_activity.class);
         intent.putExtra("plan", selection);
         ActivityScenario<Plan_activity> scenario = ActivityScenario.launch(intent);
@@ -140,6 +168,7 @@ public class ZooActivityRoboTest {
         });
         scenario.close();
     }
+
     @Test
     public void testNoRepeats(){
         ActivityScenario<Zoo_activity> scenario
@@ -151,7 +180,7 @@ public class ZooActivityRoboTest {
         scenario.onActivity(activity -> {
             SearchView search = activity.findViewById(R.id.search);
             ListView list = activity.findViewById(R.id.listview_Exhibits);
-            search.setQuery("ele", false);
+            search.setQuery("gor", false);
             ExhibitItem item = (ExhibitItem) list.getItemAtPosition(0);
             ArrayList<ExhibitItem> selected = activity.selected;
             Button plan = activity.findViewById(R.id.button);
@@ -169,22 +198,32 @@ public class ZooActivityRoboTest {
 
     @Test
     public void testDirections(){
-        List<String> tagsGator = new ArrayList<String>();
-        List<String> tagsEle = new ArrayList<String>();
-        List<String> tagsFox = new ArrayList<String>();
+        List<String> stringsPA = new ArrayList<String>();
+        List<String> stringsCM = new ArrayList<String>();
+        List<String> stringsFC = new ArrayList<String>();
+
         ArrayList<ExhibitItem> ordered = new ArrayList<>();
-        tagsGator.add("alligator");
-        tagsGator.add("reptile");
-        tagsGator.add("gator");
-        tagsEle.add("elephant");
-        tagsEle.add("mammal");
-        tagsEle.add("africa");
-        tagsFox.add("arctic");
-        tagsFox.add("fox");
-        tagsFox.add("mammal");
-        ordered.add(new ExhibitItem("gators", "Alligators", ZooData.VertexInfo.Kind.EXHIBIT, tagsGator));
-        ordered.add(new ExhibitItem("elephant_odyssey", "Elephant Odyssey", ZooData.VertexInfo.Kind.EXHIBIT, tagsEle));
-        ordered.add(new ExhibitItem("arctic_foxes", "Arctic Foxes", ZooData.VertexInfo.Kind.EXHIBIT, tagsFox));
+
+        stringsFC.add("plants");
+        stringsFC.add("ferns");
+        stringsFC.add("green");
+
+        stringsCM.add("tufted");
+        stringsCM.add("capuchin");
+        stringsCM.add("monkey");
+        stringsCM.add("mammal");
+        stringsCM.add("primate");
+        stringsCM.add("south");
+        stringsCM.add("america");
+
+        Tags tagsPA = new Tags(stringsPA);
+        Tags tagsCM = new Tags(stringsCM);
+        Tags tagsFC = new Tags(stringsFC);
+
+        ordered.add(new ExhibitItem("parker_aviary", "Parker Aviary", ZooData.VertexInfo.Kind.EXHIBITGROUP, tagsPA));
+        ordered.add(new ExhibitItem("fern_canyon", "Fern Canyon", ZooData.VertexInfo.Kind.EXHIBIT, tagsFC));
+        ordered.add(new ExhibitItem("capuchin", "Capuchin Monkeys", ZooData.VertexInfo.Kind.EXHIBIT, tagsCM));
+
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
         intent.putExtra("Directions", ordered);
         Intent planIntent = new Intent(ApplicationProvider.getApplicationContext(),  Plan_activity.class);
@@ -213,24 +252,35 @@ public class ZooActivityRoboTest {
         });
         assertEquals(distance[0], totDistance[0], .0001);
     }
+
     @Test
     public void testFirstExhibit(){
-        List<String> tagsGator = new ArrayList<String>();
-        List<String> tagsEle = new ArrayList<String>();
-        List<String> tagsFox = new ArrayList<String>();
+        List<String> stringsPA = new ArrayList<String>();
+        List<String> stringsCM = new ArrayList<String>();
+        List<String> stringsFC = new ArrayList<String>();
+
         ArrayList<ExhibitItem> ordered = new ArrayList<>();
-        tagsGator.add("alligator");
-        tagsGator.add("reptile");
-        tagsGator.add("gator");
-        tagsEle.add("elephant");
-        tagsEle.add("mammal");
-        tagsEle.add("africa");
-        tagsFox.add("arctic");
-        tagsFox.add("fox");
-        tagsFox.add("mammal");
-        ordered.add(new ExhibitItem("gators", "Alligators", ZooData.VertexInfo.Kind.EXHIBIT, tagsGator));
-        ordered.add(new ExhibitItem("elephant_odyssey", "Elephant Odyssey", ZooData.VertexInfo.Kind.EXHIBIT, tagsEle));
-        ordered.add(new ExhibitItem("arctic_foxes", "Arctic Foxes", ZooData.VertexInfo.Kind.EXHIBIT, tagsFox));
+
+        stringsFC.add("plants");
+        stringsFC.add("ferns");
+        stringsFC.add("green");
+
+        stringsCM.add("tufted");
+        stringsCM.add("capuchin");
+        stringsCM.add("monkey");
+        stringsCM.add("mammal");
+        stringsCM.add("primate");
+        stringsCM.add("south");
+        stringsCM.add("america");
+
+        Tags tagsPA = new Tags(stringsPA);
+        Tags tagsCM = new Tags(stringsCM);
+        Tags tagsFC = new Tags(stringsFC);
+
+        ordered.add(new ExhibitItem("parker_aviary", "Parker Aviary", ZooData.VertexInfo.Kind.EXHIBITGROUP, tagsPA));
+        ordered.add(new ExhibitItem("fern_canyon", "Fern Canyon", ZooData.VertexInfo.Kind.EXHIBIT, tagsFC));
+        ordered.add(new ExhibitItem("capuchin", "Capuchin Monkeys", ZooData.VertexInfo.Kind.EXHIBIT, tagsCM));
+
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
         intent.putExtra("Directions", ordered);
         ActivityScenario<DirectionsActivity> scenario
@@ -239,27 +289,38 @@ public class ZooActivityRoboTest {
         scenario.moveToState(Lifecycle.State.STARTED);
         scenario.moveToState(Lifecycle.State.RESUMED);
         scenario.onActivity(activity -> {
-           assertEquals("Alligators", activity.pathsBetweenExhibits.get(activity.pathsBetweenExhibits.size()-1).target);
+            assertEquals("Parker Aviary", activity.pathsBetweenExhibits.get(activity.pathsBetweenExhibits.size()-1).target);
         });
     }
+
     @Test
     public void nextItem(){
-        List<String> tagsGator = new ArrayList<String>();
-        List<String> tagsEle = new ArrayList<String>();
-        List<String> tagsFox = new ArrayList<String>();
+        List<String> stringsPA = new ArrayList<String>();
+        List<String> stringsCM = new ArrayList<String>();
+        List<String> stringsFC = new ArrayList<String>();
+
         ArrayList<ExhibitItem> ordered = new ArrayList<>();
-        tagsGator.add("alligator");
-        tagsGator.add("reptile");
-        tagsGator.add("gator");
-        tagsEle.add("elephant");
-        tagsEle.add("mammal");
-        tagsEle.add("africa");
-        tagsFox.add("arctic");
-        tagsFox.add("fox");
-        tagsFox.add("mammal");
-        ordered.add(new ExhibitItem("gators", "Alligators", ZooData.VertexInfo.Kind.EXHIBIT, tagsGator));
-        ordered.add(new ExhibitItem("elephant_odyssey", "Elephant Odyssey", ZooData.VertexInfo.Kind.EXHIBIT, tagsEle));
-        ordered.add(new ExhibitItem("arctic_foxes", "Arctic Foxes", ZooData.VertexInfo.Kind.EXHIBIT, tagsFox));
+
+        stringsFC.add("plants");
+        stringsFC.add("ferns");
+        stringsFC.add("green");
+
+        stringsCM.add("tufted");
+        stringsCM.add("capuchin");
+        stringsCM.add("monkey");
+        stringsCM.add("mammal");
+        stringsCM.add("primate");
+        stringsCM.add("south");
+        stringsCM.add("america");
+
+        Tags tagsPA = new Tags(stringsPA);
+        Tags tagsCM = new Tags(stringsCM);
+        Tags tagsFC = new Tags(stringsFC);
+
+        ordered.add(new ExhibitItem("parker_aviary", "Parker Aviary", ZooData.VertexInfo.Kind.EXHIBITGROUP, tagsPA));
+        ordered.add(new ExhibitItem("fern_canyon", "Fern Canyon", ZooData.VertexInfo.Kind.EXHIBIT, tagsFC));
+        ordered.add(new ExhibitItem("capuchin", "Capuchin Monkeys", ZooData.VertexInfo.Kind.EXHIBIT, tagsCM));
+
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
         intent.putExtra("Directions", ordered);
         ActivityScenario<DirectionsActivity> scenario
@@ -278,22 +339,32 @@ public class ZooActivityRoboTest {
 
     @Test
     public void testLastItemisExit(){
-        List<String> tagsGator = new ArrayList<String>();
-        List<String> tagsEle = new ArrayList<String>();
-        List<String> tagsFox = new ArrayList<String>();
+        List<String> stringsPA = new ArrayList<String>();
+        List<String> stringsCM = new ArrayList<String>();
+        List<String> stringsFC = new ArrayList<String>();
+
         ArrayList<ExhibitItem> ordered = new ArrayList<>();
-        tagsGator.add("alligator");
-        tagsGator.add("reptile");
-        tagsGator.add("gator");
-        tagsEle.add("elephant");
-        tagsEle.add("mammal");
-        tagsEle.add("africa");
-        tagsFox.add("arctic");
-        tagsFox.add("fox");
-        tagsFox.add("mammal");
-        ordered.add(new ExhibitItem("gators", "Alligators", ZooData.VertexInfo.Kind.EXHIBIT, tagsGator));
-        ordered.add(new ExhibitItem("elephant_odyssey", "Elephant Odyssey", ZooData.VertexInfo.Kind.EXHIBIT, tagsEle));
-        ordered.add(new ExhibitItem("arctic_foxes", "Arctic Foxes", ZooData.VertexInfo.Kind.EXHIBIT, tagsFox));
+
+        stringsFC.add("plants");
+        stringsFC.add("ferns");
+        stringsFC.add("green");
+
+        stringsCM.add("tufted");
+        stringsCM.add("capuchin");
+        stringsCM.add("monkey");
+        stringsCM.add("mammal");
+        stringsCM.add("primate");
+        stringsCM.add("south");
+        stringsCM.add("america");
+
+        Tags tagsPA = new Tags(stringsPA);
+        Tags tagsCM = new Tags(stringsCM);
+        Tags tagsFC = new Tags(stringsFC);
+
+        ordered.add(new ExhibitItem("parker_aviary", "Parker Aviary", ZooData.VertexInfo.Kind.EXHIBITGROUP, tagsPA));
+        ordered.add(new ExhibitItem("fern_canyon", "Fern Canyon", ZooData.VertexInfo.Kind.EXHIBIT, tagsFC));
+        ordered.add(new ExhibitItem("capuchin", "Capuchin Monkeys", ZooData.VertexInfo.Kind.EXHIBIT, tagsCM));
+
         Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
         intent.putExtra("Directions", ordered);
         ActivityScenario<DirectionsActivity> scenario
@@ -323,7 +394,7 @@ public class ZooActivityRoboTest {
             SearchView search = activity.findViewById(R.id.search);
             TextView counter = activity.findViewById(R.id.number);
             ListView list = activity.findViewById(R.id.listview_Exhibits);
-            search.setQuery("ele", false);
+            search.setQuery("gor", false);
             list.performItemClick(
                     list.getAdapter().getView(0, null, null), 0, 0);
             list.performItemClick(
@@ -331,5 +402,7 @@ public class ZooActivityRoboTest {
             assertEquals("1", counter.getText());
         });
     }
-    */
+
+
 }
+
