@@ -148,4 +148,16 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         intent.putExtra("plan",noRepeats);
         startActivity(intent);
     }
+
+
+    // When Clear button is made, we will clear our list
+    public void onClearClicked(View view) {
+        TextView counter = findViewById(R.id.number);
+        ExhibitVModel viewModel = new ViewModelProvider(this)
+                .get(ExhibitVModel.class);
+        viewModel.clearAll();
+        count = 0;
+        counter.setText(String.valueOf(count));
+        selected.clear();
+    }
 }
