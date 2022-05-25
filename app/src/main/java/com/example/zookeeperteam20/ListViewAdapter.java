@@ -85,7 +85,7 @@ public class ListViewAdapter extends BaseAdapter {
                     count++;
                 }
                 //Max search results will be 7 to leave room to show current plan
-                if(count >= 7) {
+                if(count >= 5) {
                     break;
                 }
             }

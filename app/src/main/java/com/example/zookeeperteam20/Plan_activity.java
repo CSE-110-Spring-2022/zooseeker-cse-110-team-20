@@ -125,4 +125,9 @@ public class Plan_activity extends AppCompatActivity {
         }
 
     }
+
+    public void onPlanClearClicked(View view) {
+        Intent intent = new Intent(this, Zoo_activity.class);
+        startActivity(intent);
+    }
 }

@@ -201,4 +201,10 @@ public class DirectionsActivity extends AppCompatActivity {
         }
     }
 
+    public void onCancelDirectionsClicked(View view) {
+        Intent intent = new Intent(this, Zoo_activity.class);
+        startActivity(intent);
+    }
+
+
 }
