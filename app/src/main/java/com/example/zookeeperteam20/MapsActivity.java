@@ -1,14 +1,9 @@
 package com.example.zookeeperteam20;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -19,26 +14,17 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.zookeeperteam20.databinding.ActivityMapsBinding;
 
-import java.util.Arrays;
-
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private final PermissionChecker permissionChecker = new PermissionChecker(this);
     private GoogleMap map;
     private ActivityMapsBinding binding;
 
     private Location lastVisitedLocation;
-
-    private final ActivityResultLauncher<String[]> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), perms -> {
-                perms.forEach((perm, isGranted) -> {
-                    Log.i("CSE110", String.format("Permission %s granted: %s", perm, isGranted));
-                });
-            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,24 +81,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         /* Permissions Setup */
-        {
-            var requiredPermissions = new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            };
-
-            var hasNoLocationPerms = Arrays.stream(requiredPermissions)
-                    .map(perm -> ContextCompat.checkSelfPermission(this, perm))
-                    .allMatch(status -> status == PackageManager.PERMISSION_DENIED);
-
-            if (hasNoLocationPerms) {
-                requestPermissionLauncher.launch(requiredPermissions);
-                // Note: the activity will be restarted when permission change!
-                // This entire method will be re-run, but we won't get stuck here.
-                return;
-
-            }
-        }
+        if (permissionChecker.ensurePermissions()) return;
 
         /* Listen for Location Updates */
         {
@@ -137,5 +106,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         }
+    }
+
+    private boolean ensurePermissions() {
+
+        return permissionChecker.ensurePermissions();
     }
 }
