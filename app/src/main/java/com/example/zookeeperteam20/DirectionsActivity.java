@@ -14,6 +14,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -162,7 +163,7 @@ public class DirectionsActivity extends AppCompatActivity {
             Utilities.showAlert(this,"No previous directions available");
         }
         else {
-            count--;
+
             prevPath = new ArrayList<Path>();
             Path p;
 
@@ -176,11 +177,18 @@ public class DirectionsActivity extends AppCompatActivity {
 
             //Filter and swap directions if neccesary
             whereToCount--;
+            Log.d("orderedPrev",ordered.toString());
+            Log.d("WTC", String.valueOf(whereToCount));
+            Log.d("l",prevPath.get(0).getTarget());
+            Log.d("source",prevPath.get(0).getSource());
+            Collections.reverse(prevPath);
             if(whereToCount < ordered.size() ) {
                 for(int i = prevPath.size() - 1; i >= 0 ; i--) {
                     if (i == prevPath.size() - 1) {
                         if(prevPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
                             prevPath.get(i).swap();
+                            Log.d("l2",prevPath.get(0).getTarget());
+                            Log.d("source2",prevPath.get(0).getSource());
                         }
                     } else {
                         if(prevPath.get(i).getTarget().equals(prevPath.get(i+1).getSource()) != true) {
@@ -189,6 +197,16 @@ public class DirectionsActivity extends AppCompatActivity {
                     }
                 }
             }
+
+            //reverse every path in prevPath so directions make sense
+
+
+
+
+            count--;
+
+
+
             adapter.setRouteItems(prevPath);
             TextView wT = findViewById(R.id.whereTo);
             if (whereToCount < ordered.size() ) {
