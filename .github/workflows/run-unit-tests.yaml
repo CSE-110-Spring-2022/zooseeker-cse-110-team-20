@@ -9,7 +9,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       
-              
       # local prperties isssue is fixed with this
       - name: Touch local properties
         run: touch local.properties
