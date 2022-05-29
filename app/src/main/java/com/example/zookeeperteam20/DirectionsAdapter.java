@@ -20,7 +20,7 @@ import java.util.Map;
 public class DirectionsAdapter extends RecyclerView.Adapter<DirectionsAdapter.ViewHolder>{
     private ArrayList<Path> paths = new ArrayList<Path>();
     public void setRouteItems(ArrayList<Path> newPaths) {
-        this.paths.clear();
+        //this.paths.clear();
         this.paths = newPaths;
         notifyDataSetChanged();
     }

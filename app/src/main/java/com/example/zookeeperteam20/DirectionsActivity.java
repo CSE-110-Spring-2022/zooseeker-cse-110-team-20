@@ -34,6 +34,7 @@ import java.util.Map;
 public class DirectionsActivity extends AppCompatActivity {
     public static final String EXTRA_LISTEN_TO_GPS = "listen_to_gps";
 
+    boolean dir = false;
     int count = 0;
     public RecyclerView recyclerView;
     List<GraphPath<String, IdentifiedWeightedEdge>> route;
@@ -46,12 +47,14 @@ public class DirectionsActivity extends AppCompatActivity {
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
     ArrayList<Path> nextPath = new ArrayList<Path>();
     ArrayList<Path> prevPath = new ArrayList<Path>();
-
+    ArrayList<Path> currPath = new ArrayList<Path>();
     LatLng currentLocation = new LatLng(32.737986, -117.169499);
 
     boolean listenToGps = false;
 
     //    @SuppressLint("MissingPermission")
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         final PermissionChecker permissionChecker = new PermissionChecker(this);
@@ -174,8 +177,27 @@ public class DirectionsActivity extends AppCompatActivity {
                 }
             }
 
-            Log.d("CheckNext", nextPath.toString()); //Used for debugging
-            adapter.setRouteItems(nextPath);
+            if(dir) {
+                Path bp;
+                for (int i = 0; i < nextPath.size() - 1; i++) {
+                    if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
+                        bp = new Path(nextPath.get(i).getSource(),
+                                nextPath.get(i + 1).getTarget(),
+                                nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
+                                nextPath.get(i).getStreet());
+
+                        nextPath.set(i, bp);
+                        nextPath.remove(i + 1);
+                        i--;
+                    }
+                }
+                adapter.setRouteItems(nextPath);
+            }
+            else {
+                adapter.setRouteItems(nextPath);
+            }
+            //Log.d("CheckNext", nextPath.toString()); //Used for debugging
+
 
             //Updates title of page with correct exhibit we are trying to get to
             TextView wT = findViewById(R.id.whereTo);
@@ -242,7 +264,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
 
 
-            adapter.setRouteItems(prevPath);
+            //Set Top Text
             TextView wT = findViewById(R.id.whereTo);
             if (whereToCount < ordered.size() ) {
                 wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
@@ -251,12 +273,144 @@ public class DirectionsActivity extends AppCompatActivity {
                 wT.setText("Directions to Exit");
             }
 
+            if(dir) {
+                Path bp;
+                for (int i = 0; i < prevPath.size() - 1; i++) {
+                    if (prevPath.get(i).getStreet().equals(prevPath.get(i + 1).getStreet())) {
+                        bp = new Path(prevPath.get(i).getSource(),
+                                prevPath.get(i + 1).getTarget(),
+                                prevPath.get(i).getDistance() + prevPath.get(i + 1).getDistance(),
+                                prevPath.get(i).getStreet());
+
+                        prevPath.set(i, bp);
+                        prevPath.remove(i + 1);
+                        i--;
+                    }
+                }
+                adapter.setRouteItems(prevPath);
+            }
+            else {
+                adapter.setRouteItems(prevPath);
+            }
+
+
         }
     }
 
     public void onCancelDirectionsClicked(View view) {
         Intent intent = new Intent(this, Zoo_activity.class);
         startActivity(intent);
+    }
+
+
+    public void onSettingsClicked(View view) {
+        currPath = new ArrayList<Path>();
+        Path p;
+
+        for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+            p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                    vInfo.get(g.getEdgeTarget(e).toString()).name,
+                    g.getEdgeWeight(e),
+                    eInfo.get(e.getId()).street);
+            currPath.add(p);
+        }
+        //Filter amd swap directions if necessary
+        if(whereToCount < ordered.size() ) {
+            for (int i = currPath.size() - 1; i >= 0; i--) {
+                if (i == currPath.size() - 1) {
+                    if (currPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                        currPath.get(i).swap();
+                    }
+                } else {
+                    if (currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
+                        currPath.get(i).swap();
+                    }
+                }
+            }
+        }
+        else {
+            for( int i = currPath.size() - 1; i >= 0; i--) {
+                if(i == currPath.size() - 1) {
+                    if (currPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                        currPath.get(i).swap();
+                    }
+                }
+                else {
+                    if(currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
+                        currPath.get(i).swap();
+                    }
+                }
+            }
+        }
+
+
+
+        if (!dir) {
+            Log.d("b4Brief", currPath.toString());
+            //Brief Directions
+            int k;
+            Path bp;
+            for (int i = 0; i < currPath.size() - 1; i++) {
+                if (currPath.get(i).getStreet().equals(currPath.get(i + 1).getStreet())) {
+                    bp = new Path(currPath.get(i).getSource(),
+                            currPath.get(i + 1).getTarget(),
+                            currPath.get(i).getDistance() + currPath.get(i + 1).getDistance(),
+                            currPath.get(i).getStreet());
+
+                    currPath.set(i, bp);
+                    currPath.remove(i + 1);
+                    i--;
+                }
+
+            }
+            Log.d("after", currPath.toString());
+            adapter.setRouteItems(currPath);
+            Log.d("afterAd", currPath.toString());
+            dir = true;
+
+        }
+        else{
+            currPath.clear();
+            for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+                p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                        vInfo.get(g.getEdgeTarget(e).toString()).name
+                        ,g.getEdgeWeight(e),
+                        eInfo.get(e.getId()).street);
+                currPath.add(p);
+            }
+
+
+            //Filter amd swap directions if necessary
+            if(whereToCount < ordered.size() ) {
+                for (int i = currPath.size() - 1; i >= 0; i--) {
+                    if (i == currPath.size() - 1) {
+                        if (currPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                            currPath.get(i).swap();
+                        }
+                    } else {
+                        if (currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
+                            currPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+            else {
+                for( int i = currPath.size() - 1; i >= 0; i--) {
+                    if(i == currPath.size() - 1) {
+                        if (currPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                            currPath.get(i).swap();
+                        }
+                    }
+                    else {
+                        if(currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
+                            currPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+            adapter.setRouteItems(currPath);
+            dir = false;
+        }
     }
 
 
