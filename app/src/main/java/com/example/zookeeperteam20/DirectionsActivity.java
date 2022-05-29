@@ -177,7 +177,7 @@ public class DirectionsActivity extends AppCompatActivity {
                 }
             }
 
-            if(!dir) {
+            if(dir) {
                 Path bp;
                 for (int i = 0; i < nextPath.size() - 1; i++) {
                     if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
@@ -264,7 +264,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
 
 
-            adapter.setRouteItems(prevPath);
+            //Set Top Text
             TextView wT = findViewById(R.id.whereTo);
             if (whereToCount < ordered.size() ) {
                 wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
@@ -272,6 +272,27 @@ public class DirectionsActivity extends AppCompatActivity {
             else {
                 wT.setText("Directions to Exit");
             }
+
+            if(dir) {
+                Path bp;
+                for (int i = 0; i < prevPath.size() - 1; i++) {
+                    if (prevPath.get(i).getStreet().equals(prevPath.get(i + 1).getStreet())) {
+                        bp = new Path(prevPath.get(i).getSource(),
+                                prevPath.get(i + 1).getTarget(),
+                                prevPath.get(i).getDistance() + prevPath.get(i + 1).getDistance(),
+                                prevPath.get(i).getStreet());
+
+                        prevPath.set(i, bp);
+                        prevPath.remove(i + 1);
+                        i--;
+                    }
+                }
+                adapter.setRouteItems(prevPath);
+            }
+            else {
+                adapter.setRouteItems(prevPath);
+            }
+
 
         }
     }
@@ -293,8 +314,39 @@ public class DirectionsActivity extends AppCompatActivity {
                     eInfo.get(e.getId()).street);
             currPath.add(p);
         }
+        //Filter amd swap directions if necessary
+        if(whereToCount < ordered.size() ) {
+            for (int i = currPath.size() - 1; i >= 0; i--) {
+                if (i == currPath.size() - 1) {
+                    if (currPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                        currPath.get(i).swap();
+                    }
+                } else {
+                    if (currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
+                        currPath.get(i).swap();
+                    }
+                }
+            }
+        }
+        else {
+            for( int i = currPath.size() - 1; i >= 0; i--) {
+                if(i == currPath.size() - 1) {
+                    if (currPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                        currPath.get(i).swap();
+                    }
+                }
+                else {
+                    if(currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
+                        currPath.get(i).swap();
+                    }
+                }
+            }
+        }
+
+
+
         if (!dir) {
-            Log.d("b4Brief", pathsBetweenExhibits.toString());
+            Log.d("b4Brief", currPath.toString());
             //Brief Directions
             int k;
             Path bp;
@@ -337,6 +389,20 @@ public class DirectionsActivity extends AppCompatActivity {
                         }
                     } else {
                         if (currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
+                            currPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+            else {
+                for( int i = currPath.size() - 1; i >= 0; i--) {
+                    if(i == currPath.size() - 1) {
+                        if (currPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                            currPath.get(i).swap();
+                        }
+                    }
+                    else {
+                        if(currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
                             currPath.get(i).swap();
                         }
                     }
