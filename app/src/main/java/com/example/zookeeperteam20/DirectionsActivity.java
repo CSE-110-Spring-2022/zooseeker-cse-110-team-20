@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DirectionsActivity extends AppCompatActivity {
+    boolean dir = false;
     int count = 0;
     public RecyclerView recyclerView;
     List<GraphPath<String, IdentifiedWeightedEdge>> route;
@@ -31,6 +32,7 @@ public class DirectionsActivity extends AppCompatActivity {
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
     ArrayList<Path> nextPath = new ArrayList<Path>();
     ArrayList<Path> prevPath = new ArrayList<Path>();
+    ArrayList<Path> currPath = new ArrayList<Path>();
   
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,8 +141,27 @@ public class DirectionsActivity extends AppCompatActivity {
                 }
             }
 
-            Log.d("CheckNext", nextPath.toString()); //Used for debugging
-            adapter.setRouteItems(nextPath);
+            if(!dir) {
+                Path bp;
+                for (int i = 0; i < nextPath.size() - 1; i++) {
+                    if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
+                        bp = new Path(nextPath.get(i).getSource(),
+                                nextPath.get(i + 1).getTarget(),
+                                nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
+                                nextPath.get(i).getStreet());
+
+                        nextPath.set(i, bp);
+                        nextPath.remove(i + 1);
+                        i--;
+                    }
+                }
+                adapter.setRouteItems(nextPath);
+            }
+            else {
+                adapter.setRouteItems(nextPath);
+            }
+            //Log.d("CheckNext", nextPath.toString()); //Used for debugging
+
 
             //Updates title of page with correct exhibit we are trying to get to
             TextView wT = findViewById(R.id.whereTo);
@@ -222,6 +243,72 @@ public class DirectionsActivity extends AppCompatActivity {
     public void onCancelDirectionsClicked(View view) {
         Intent intent = new Intent(this, Zoo_activity.class);
         startActivity(intent);
+    }
+
+
+    public void onSettingsClicked(View view) {
+        currPath = new ArrayList<Path>();
+        Path p;
+
+        for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+            p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                    vInfo.get(g.getEdgeTarget(e).toString()).name,
+                    g.getEdgeWeight(e),
+                    eInfo.get(e.getId()).street);
+            currPath.add(p);
+        }
+        if (!dir) {
+            Log.d("b4Brief", pathsBetweenExhibits.toString());
+            //Brief Directions
+            int k;
+            Path bp;
+            for (int i = 0; i < currPath.size() - 1; i++) {
+                if (currPath.get(i).getStreet().equals(currPath.get(i + 1).getStreet())) {
+                    bp = new Path(currPath.get(i).getSource(),
+                            currPath.get(i + 1).getTarget(),
+                            currPath.get(i).getDistance() + currPath.get(i + 1).getDistance(),
+                            currPath.get(i).getStreet());
+
+                    currPath.set(i, bp);
+                    currPath.remove(i + 1);
+                    i--;
+                }
+
+            }
+            Log.d("after", currPath.toString());
+            adapter.setRouteItems(currPath);
+            Log.d("afterAd", currPath.toString());
+            dir = true;
+
+        }
+        else{
+            currPath.clear();
+            for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+                p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                        vInfo.get(g.getEdgeTarget(e).toString()).name
+                        ,g.getEdgeWeight(e),
+                        eInfo.get(e.getId()).street);
+                currPath.add(p);
+            }
+
+
+            //Filter amd swap directions if necessary
+            if(whereToCount < ordered.size() ) {
+                for (int i = currPath.size() - 1; i >= 0; i--) {
+                    if (i == currPath.size() - 1) {
+                        if (currPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                            currPath.get(i).swap();
+                        }
+                    } else {
+                        if (currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
+                            currPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+            adapter.setRouteItems(currPath);
+            dir = false;
+        }
     }
 
 
