@@ -403,6 +403,52 @@ public class NewRoboTest {
         });
     }
 
+    @Test
+    public void previousItem(){
+        List<String> stringsPA = new ArrayList<String>();
+        List<String> stringsCM = new ArrayList<String>();
+        List<String> stringsFC = new ArrayList<String>();
 
+        ArrayList<ExhibitItem> ordered = new ArrayList<>();
+
+        stringsFC.add("plants");
+        stringsFC.add("ferns");
+        stringsFC.add("green");
+
+        stringsCM.add("tufted");
+        stringsCM.add("capuchin");
+        stringsCM.add("monkey");
+        stringsCM.add("mammal");
+        stringsCM.add("primate");
+        stringsCM.add("south");
+        stringsCM.add("america");
+
+        Tags tagsPA = new Tags(stringsPA);
+        Tags tagsCM = new Tags(stringsCM);
+        Tags tagsFC = new Tags(stringsFC);
+
+        ordered.add(new ExhibitItem("parker_aviary", "Parker Aviary", ZooData.VertexInfo.Kind.EXHIBITGROUP, tagsPA));
+        ordered.add(new ExhibitItem("fern_canyon", "Fern Canyon", ZooData.VertexInfo.Kind.EXHIBIT, tagsFC));
+        ordered.add(new ExhibitItem("capuchin", "Capuchin Monkeys", ZooData.VertexInfo.Kind.EXHIBIT, tagsCM));
+
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
+        intent.putExtra("Directions", ordered);
+        ActivityScenario<DirectionsActivity> scenario
+                = ActivityScenario.launch(intent);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        scenario.onActivity(activity -> {
+            Button next = activity.findViewById(R.id.Next);
+            for(int i = 1; i < ordered.size(); i++){
+                next.performClick();
+            }
+            Button previous = activity.findViewById(R.id.Previous);
+            for(int i = ordered.size()-1; i > 0; i--){
+                previous.performClick();
+                assertEquals(ordered.get(i-1).getExhibitName(), activity.prevPath.get(activity.prevPath.size()-1).target);
+            }
+        });
+    }
 }
 

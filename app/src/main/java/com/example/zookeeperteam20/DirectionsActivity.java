@@ -1,14 +1,27 @@
 package com.example.zookeeperteam20;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.example.zookeeperteam20.location.PermissionChecker;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
@@ -19,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 public class DirectionsActivity extends AppCompatActivity {
+    public static final String EXTRA_LISTEN_TO_GPS = "listen_to_gps";
+
     boolean dir = false;
     int count = 0;
     public RecyclerView recyclerView;
@@ -33,11 +48,21 @@ public class DirectionsActivity extends AppCompatActivity {
     ArrayList<Path> nextPath = new ArrayList<Path>();
     ArrayList<Path> prevPath = new ArrayList<Path>();
     ArrayList<Path> currPath = new ArrayList<Path>();
-  
+    LatLng currentLocation = new LatLng(32.737986, -117.169499);
+
+    boolean listenToGps = false;
+
+    //    @SuppressLint("MissingPermission")
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final PermissionChecker permissionChecker = new PermissionChecker(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_directions);
+
+        // First check permission.
+
 
         // Extract ordered from PlanActivity
         ordered = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("Directions");
@@ -64,13 +89,18 @@ public class DirectionsActivity extends AppCompatActivity {
        recyclerView.setAdapter(adapter);
        Path p;
 
+       Log.d("currentRoute", route.toString());
+
        for(IdentifiedWeightedEdge e : route.get(0).getEdgeList()) {
            p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                    vInfo.get(g.getEdgeTarget(e).toString()).name
                    ,g.getEdgeWeight(e),
                    eInfo.get(e.getId()).street);
            pathsBetweenExhibits.add(p);
+//           Log.d("newPath", p.toString());
        }
+
+
 
 
        //Filter amd swap directions if necessary
@@ -89,6 +119,12 @@ public class DirectionsActivity extends AppCompatActivity {
         }
         adapter.setRouteItems(pathsBetweenExhibits);
 
+        /* Permissions Setup */
+//        if (permissionChecker.ensurePermissions()) return;
+
+        /* Line for GPS detection */
+        var listenToGps = getIntent().getBooleanExtra(EXTRA_LISTEN_TO_GPS, true);
+        if (!listenToGps) setupLocationListener();
     }
 
     public void onNextClicked(View view) {
@@ -309,6 +345,69 @@ public class DirectionsActivity extends AppCompatActivity {
             adapter.setRouteItems(currPath);
             dir = false;
         }
+    }
+
+
+    @SuppressLint("MissingPermission")
+    private void setupLocationListener() {
+        new PermissionChecker(this).ensurePermissions();
+
+        // Connect location listener to the model.
+        var provider = LocationManager.GPS_PROVIDER;
+        var locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        var locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(@NonNull Location location) {
+//                var coords = Pair.create(
+//                        location.getLatitude(),
+//                        location.getLongitude()
+//                );
+                double lat = location.getLatitude();
+                double lng = location.getLongitude();
+                if ((currentLocation.latitude != lat) || (currentLocation.longitude != lng)) {
+                    currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    Log.d("currentLocation", currentLocation.toString());
+                }
+            }
+        };
+        locationManager.requestLocationUpdates(provider, 0, 0f, locationListener);
+    }
+
+
+    public void onMockButtonClicked(View view) {
+        var inputType = EditorInfo.TYPE_CLASS_NUMBER
+                | EditorInfo.TYPE_NUMBER_FLAG_SIGNED
+                | EditorInfo.TYPE_NUMBER_FLAG_DECIMAL;
+
+        final EditText latInput = new EditText(this);
+        latInput.setInputType(inputType);
+        latInput.setHint("Latitude");
+        latInput.setText("32.737986");
+
+        final EditText lngInput = new EditText(this);
+        lngInput.setInputType(inputType);
+        lngInput.setHint("Longitude");
+        lngInput.setText("-117.169499");
+
+        final LinearLayout layout = new LinearLayout(this);
+        layout.setDividerPadding(8);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.addView(latInput);
+        layout.addView(lngInput);
+
+        var builder = new AlertDialog.Builder(this)
+                .setTitle("Inject a Mock Location")
+                .setView(layout)
+                .setPositiveButton("Submit", (dialog, which) -> {
+                    var lat = Double.parseDouble(latInput.getText().toString());
+                    var lng = Double.parseDouble(lngInput.getText().toString());
+                    currentLocation = new LatLng(lat, lng);
+                    Log.d("currentLocation", currentLocation.toString());
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> {
+                    dialog.cancel();
+                });
+        builder.show();
     }
 
 

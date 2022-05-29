@@ -70,6 +70,18 @@
         app:layout_constraintVertical_bias="0.862" />
 
     <Button
+        android:id="@+id/mockLocation"
+        android:layout_width="110dp"
+        android:layout_height="50dp"
+        android:onClick="onMockButtonClicked"
+        android:text="Mock"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/whereTo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.861" />
+
+    <Button
         android:id="@+id/Skip"
         android:layout_width="110dp"
         android:layout_height="50dp"
