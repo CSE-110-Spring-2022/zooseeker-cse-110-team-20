@@ -85,6 +85,7 @@
         android:id="@+id/Skip"
         android:layout_width="110dp"
         android:layout_height="50dp"
+        android:onClick="onSkipClicked"
         android:text="Skip"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

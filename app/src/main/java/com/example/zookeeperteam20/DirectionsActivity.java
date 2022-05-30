@@ -476,5 +476,98 @@ public class DirectionsActivity extends AppCompatActivity {
         builder.show();
     }
 
+    public void onSkipClicked(View view){
+            if(count < route.size() - 2) {
+                nextPath = new ArrayList<Path>();
+                int nextE = whereToCount + 1;
+                ordered.remove(nextE);
+                ShortestDistance shortDist = new ShortestDistance(g,ordered);
+                route = shortDist.getShortest();
+
+                Log.d("Click", route.get(count).toString()); //Used for debugging
+
+                Path p;
+
+                // Create Initial NextPath
+                count++;
+                for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+                    p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                            vInfo.get(g.getEdgeTarget(e).toString()).name
+                            , g.getEdgeWeight(e),
+                            eInfo.get(e.getId()).street);
+                    nextPath.add(p);
+                }
+
+                //Filter and swap directions if necessary
+                whereToCount++;
+                if(whereToCount < ordered.size()) {
+                    for (int i = nextPath.size() - 1; i >= 0; i--) {
+                        if (i == nextPath.size() - 1) {
+                            if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                                nextPath.get(i).swap();
+                            }
+                        } else {
+                            if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                                nextPath.get(i).swap();
+                            }
+                        }
+                    }
+                }
+                // Once ordered list has been traversed we will set up check if we need to swap directions
+                // on final directions to exit.
+                else {
+                    for( int i = nextPath.size() - 1; i >= 0; i--) {
+                        if(i == nextPath.size() - 1) {
+                            if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                                nextPath.get(i).swap();
+                            }
+                        }
+                        else {
+                            if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                                nextPath.get(i).swap();
+                            }
+                        }
+                    }
+                }
+
+                if(dir) {
+                    Path bp;
+                    for (int i = 0; i < nextPath.size() - 1; i++) {
+                        if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
+                            bp = new Path(nextPath.get(i).getSource(),
+                                    nextPath.get(i + 1).getTarget(),
+                                    nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
+                                    nextPath.get(i).getStreet());
+
+                            nextPath.set(i, bp);
+                            nextPath.remove(i + 1);
+                            i--;
+                        }
+                    }
+                    adapter.setRouteItems(nextPath);
+                }
+                else {
+                    adapter.setRouteItems(nextPath);
+                }
+                //Log.d("CheckNext", nextPath.toString()); //Used for debugging
+
+
+                //Updates title of page with correct exhibit we are trying to get to
+                TextView wT = findViewById(R.id.whereTo);
+                if (whereToCount < ordered.size() ) {
+                    wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+                }
+                else {
+                    wT.setText("Directions to Exit");
+                }
+            }
+            else if(count < route.size()-1){
+                //Warning shows up once route is completed
+                Utilities.showAlert(this, "No more exhibits, press next to go to exit");
+            }
+            else{
+                Utilities.showAlert(this, "Route is complete.");
+            }
+    }
 
 }
