@@ -38,6 +38,8 @@ public class DirectionsActivity extends AppCompatActivity {
     public static final String EXTRA_LISTEN_TO_GPS = "listen_to_gps";
 
     boolean dir = false;
+    boolean reverse = false;
+    boolean forward = false;
     int count = 0;
     public RecyclerView recyclerView;
     List<GraphPath<String, IdentifiedWeightedEdge>> route;
@@ -132,6 +134,9 @@ public class DirectionsActivity extends AppCompatActivity {
 
     public void onNextClicked(View view) {
         if(count < route.size() - 1) {
+            reverse = false;
+            forward = true;
+
             nextPath = new ArrayList<Path>();
 
             Log.d("Click", route.get(count).toString()); //Used for debugging
@@ -223,7 +228,8 @@ public class DirectionsActivity extends AppCompatActivity {
             Utilities.showAlert(this,"No previous directions available");
         }
         else {
-
+            reverse = true;
+            forward = false;
             prevPath = new ArrayList<Path>();
             Path p;
 
@@ -301,82 +307,16 @@ public class DirectionsActivity extends AppCompatActivity {
 
 
     public void onSettingsClicked(View view) {
-        currPath = new ArrayList<Path>();
         Path p;
-
-        for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
-            p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
-                    vInfo.get(g.getEdgeTarget(e).toString()).name,
-                    g.getEdgeWeight(e),
-                    eInfo.get(e.getId()).street);
-            currPath.add(p);
-        }
-        //Filter amd swap directions if necessary
-        if(whereToCount < ordered.size() ) {
-            for (int i = currPath.size() - 1; i >= 0; i--) {
-                if (i == currPath.size() - 1) {
-                    if (currPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                        currPath.get(i).swap();
-                    }
-                } else {
-                    if (currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
-                        currPath.get(i).swap();
-                    }
-                }
-            }
-        }
-        else {
-            for( int i = currPath.size() - 1; i >= 0; i--) {
-                if(i == currPath.size() - 1) {
-                    if (currPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
-                        currPath.get(i).swap();
-                    }
-                }
-                else {
-                    if(currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
-                        currPath.get(i).swap();
-                    }
-                }
-            }
-        }
-
-
-
-        if (!dir) {
-            Log.d("b4Brief", currPath.toString());
-            //Brief Directions
-            int k;
-            Path bp;
-            for (int i = 0; i < currPath.size() - 1; i++) {
-                if (currPath.get(i).getStreet().equals(currPath.get(i + 1).getStreet())) {
-                    bp = new Path(currPath.get(i).getSource(),
-                            currPath.get(i + 1).getTarget(),
-                            currPath.get(i).getDistance() + currPath.get(i + 1).getDistance(),
-                            currPath.get(i).getStreet());
-
-                    currPath.set(i, bp);
-                    currPath.remove(i + 1);
-                    i--;
-                }
-
-            }
-            Log.d("after", currPath.toString());
-            adapter.setRouteItems(currPath);
-            Log.d("afterAd", currPath.toString());
-            dir = true;
-
-        }
-        else{
-            currPath.clear();
+        if(!forward && !reverse){
+            currPath = new ArrayList<Path>();
             for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
-                        vInfo.get(g.getEdgeTarget(e).toString()).name
-                        ,g.getEdgeWeight(e),
+                        vInfo.get(g.getEdgeTarget(e).toString()).name,
+                        g.getEdgeWeight(e),
                         eInfo.get(e.getId()).street);
                 currPath.add(p);
             }
-
-
             //Filter amd swap directions if necessary
             if(whereToCount < ordered.size() ) {
                 for (int i = currPath.size() - 1; i >= 0; i--) {
@@ -384,7 +324,8 @@ public class DirectionsActivity extends AppCompatActivity {
                         if (currPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
                             currPath.get(i).swap();
                         }
-                    } else {
+                    }
+                    else {
                         if (currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
                             currPath.get(i).swap();
                         }
@@ -405,8 +346,170 @@ public class DirectionsActivity extends AppCompatActivity {
                     }
                 }
             }
-            adapter.setRouteItems(currPath);
-            dir = false;
+            //Check settings of Directions
+            if (!dir) {
+                Log.d("b4Brief", currPath.toString());
+                //Brief Directions
+                int k;
+                Path bp;
+                for (int i = 0; i < currPath.size() - 1; i++) {
+                    if (currPath.get(i).getStreet().equals(currPath.get(i + 1).getStreet())) {
+                        bp = new Path(currPath.get(i).getSource(),
+                                currPath.get(i + 1).getTarget(),
+                                currPath.get(i).getDistance() + currPath.get(i + 1).getDistance(),
+                                currPath.get(i).getStreet());
+
+                        currPath.set(i, bp);
+                        currPath.remove(i + 1);
+                        i--;
+                    }
+
+                }
+                Log.d("after", currPath.toString());
+                adapter.setRouteItems(currPath);
+                Log.d("afterAd", currPath.toString());
+                dir = true;
+
+            }
+            else {
+                adapter.setRouteItems(currPath);
+                dir = false;
+            }
+
+
+
+        }
+        else if(forward && !reverse) {
+            //Rebuild nextPath
+            nextPath.clear();
+            for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+                p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                        vInfo.get(g.getEdgeTarget(e).toString()).name
+                        , g.getEdgeWeight(e),
+                        eInfo.get(e.getId()).street);
+                nextPath.add(p);
+            }
+            //Swap directions if Necessary
+            if(whereToCount < ordered.size() ) {
+                for (int i = nextPath.size() - 1; i >= 0; i--) {
+                    if (i == nextPath.size() - 1) {
+                        if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                            nextPath.get(i).swap();
+                        }
+                    } else {
+                        if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                            nextPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+            // Once ordered list has been traversed we will set up check if we need to swap directions
+            // on final directions to exit.
+            else {
+                for( int i = nextPath.size() - 1; i >= 0; i--) {
+                    if(i == nextPath.size() - 1) {
+                        if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                            nextPath.get(i).swap();
+                        }
+                    }
+                    else {
+                        if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                            nextPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+            //Check settings of Directions
+            if (!dir) {
+                Log.d("b4Brief", nextPath.toString());
+                //Brief Directions
+                int k;
+                Path bp;
+                for (int i = 0; i < nextPath.size() - 1; i++) {
+                    if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
+                        bp = new Path(nextPath.get(i).getSource(),
+                                nextPath.get(i + 1).getTarget(),
+                                nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
+                                nextPath.get(i).getStreet());
+
+                        nextPath.set(i, bp);
+                        nextPath.remove(i + 1);
+                        i--;
+                    }
+
+                }
+                Log.d("after", nextPath.toString());
+                adapter.setRouteItems(nextPath);
+                Log.d("afterAd", nextPath.toString());
+                dir = true;
+
+            }
+            else {
+                adapter.setRouteItems(nextPath);
+                dir = false;
+            }
+        }
+        else if(!forward && reverse) {
+            //Rebuild prevPath
+            prevPath.clear();
+            count++;
+            for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+                p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                        vInfo.get(g.getEdgeTarget(e).toString()).name,
+                        g.getEdgeWeight(e),
+                        eInfo.get(e.getId()).street);
+                prevPath.add(p);
+            }
+            count--;
+
+            //Swap directions if necessary
+            Collections.reverse(prevPath);
+            if(whereToCount < ordered.size() ) {
+                for(int i = prevPath.size() - 1; i >= 0 ; i--) {
+                    if (i == prevPath.size() - 1) {
+                        if(prevPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                            prevPath.get(i).swap();
+                            Log.d("l2",prevPath.get(0).getTarget());
+                            Log.d("source2",prevPath.get(0).getSource());
+                        }
+                    } else {
+                        if(prevPath.get(i).getTarget().equals(prevPath.get(i+1).getSource()) != true) {
+                            prevPath.get(i).swap();
+                        }
+                    }
+                }
+            }
+
+
+            //Check settings of Directions
+            if (!dir) {
+                Log.d("b4Brief", prevPath.toString());
+                //Brief Directions
+                int k;
+                Path bp;
+                for (int i = 0; i < prevPath.size() - 1; i++) {
+                    if (prevPath.get(i).getStreet().equals(prevPath.get(i + 1).getStreet())) {
+                        bp = new Path(prevPath.get(i).getSource(),
+                                prevPath.get(i + 1).getTarget(),
+                                prevPath.get(i).getDistance() + prevPath.get(i + 1).getDistance(),
+                                prevPath.get(i).getStreet());
+
+                        prevPath.set(i, bp);
+                        prevPath.remove(i + 1);
+                        i--;
+                    }
+
+                }
+                Log.d("after", prevPath.toString());
+                adapter.setRouteItems(prevPath);
+                Log.d("afterAd", prevPath.toString());
+                dir = true;
+
+            }
+            else {
+                adapter.setRouteItems(prevPath);
+                dir = false;
+            }
         }
     }
 
