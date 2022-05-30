@@ -42,6 +42,8 @@ public class ExhibitItem implements Serializable {
     private String name;
     private ZooData.VertexInfo.Kind kind;
     private Tags tags;
+    private Double lat;
+    private Double lng;
 
 
     //Constructor for ExhibitItem
@@ -76,6 +78,9 @@ public class ExhibitItem implements Serializable {
         return this.parentName;
     }
 
+    public Double getLat() { return this.lat; }
+    public Double getLng() { return this.lng; }
+
     public String getExhibitName() {
         return this.name;
     }
@@ -98,6 +103,9 @@ public class ExhibitItem implements Serializable {
     public void setParentId(@NonNull String parentId) {
         this.parentId = parentId;
     }
+
+    public void setLat(Double lat) { this.lat = lat; }
+    public void setLng(Double lng) { this.lng = lng; }
 
     public void setParentName(String parentName) {
         this.parentName = parentName;

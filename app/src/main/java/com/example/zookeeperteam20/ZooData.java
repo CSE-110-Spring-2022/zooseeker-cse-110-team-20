@@ -37,6 +37,8 @@ public class ZooData {
         public Kind kind;
         public String name;
         public List<String> tags;
+        public Double lat;
+        public Double lng;
     }
 
     public static class EdgeInfo {

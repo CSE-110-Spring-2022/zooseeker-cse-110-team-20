@@ -14,12 +14,12 @@ public class ShortestDistanceGreedy {
     // Initial Parameters for constructing graphs
     Graph<String, IdentifiedWeightedEdge> g;
     String STARTEND = "entrance_exit_gate";
-    ArrayList<ExhibitItem> noRepeats;
+    List<ExhibitItem> noRepeats;
     ExhibitItem start;
 
 
     ShortestDistanceGreedy(Graph<String, IdentifiedWeightedEdge> g,
-                           ArrayList<ExhibitItem> noRepeats,
+                           List<ExhibitItem> noRepeats,
                            ExhibitItem start) {
         // takes a Graph object and noRepeats for construction.
         this.g = g;
