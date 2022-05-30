@@ -57,6 +57,9 @@ public class Plan_activity extends AppCompatActivity {
                         vInfo.get(elem.getParentId()).name,
                         vInfo.get(elem.getParentId()).kind,
                         new Tags(vInfo.get(elem.getParentId()).tags));
+                Log.d("parentsInPlan", parent.toString());
+                parent.setLat( vInfo.get(elem.getParentId()).lat);
+                parent.setLng( vInfo.get(elem.getParentId()).lng);
                 if(noGroupRepeats.size() == 0) {
                     noGroupRepeats.add(parent);
                 }

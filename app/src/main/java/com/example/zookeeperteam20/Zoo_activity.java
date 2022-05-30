@@ -63,11 +63,22 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
                 if (node.parent_id != null){
                     e0.setParentId(node.parent_id);
                     e0.setParentName(vInfo.get(node.parent_id).name);
+                    e0.setLat(vInfo.get(node.parent_id).lat);
+                    e0.setLng(vInfo.get(node.parent_id).lng);
+                    Log.d("currentLatNameWithParents", node.id);
+                    Log.d("currentLatWithParents", vInfo.get(node.parent_id).lat.toString());
+                } else {
+                    e0.setLat(vInfo.get(node.id).lat);
+                    Log.d("currentLatName", node.name);
+                    Log.d("currentLat", vInfo.get(node.id).lat.toString());
+                    e0.setLng(vInfo.get(node.id).lng);
                 }
                 ExhibitsList.add(e0);
                 Log.d("ZooData", node.name);
             }
         }
+
+        Log.d("ZooDataWithLatLng", ExhibitsList.toString());
 
         //Set up Adapter to create drop down menu for search bar
         //Followed a tutorial on how to create such search bar into our code
