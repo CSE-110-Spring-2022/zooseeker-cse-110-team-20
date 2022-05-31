@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -22,12 +23,15 @@ import android.widget.TextView;
 
 import com.example.zookeeperteam20.location.PermissionChecker;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,6 +79,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
         // Extract ordered from PlanActivity
         ordered = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("Directions");
+        loadProfile();
         List<String> exitTags = Arrays.asList("enter", "leave", "start", "begin", "entrance", "exit");
         Log.d("Directions UI Ordered", ordered.toString());
 
@@ -126,7 +131,12 @@ public class DirectionsActivity extends AppCompatActivity {
 
         // Set title of activity (text at top)
         TextView wT = findViewById(R.id.whereTo);
-        wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+        if(whereToCount < ordered.size()){
+            wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+        }
+        else{
+            wT.setText("Directions to Exit");
+        }
 
 
         recyclerView = findViewById(R.id.directions_list);
@@ -170,6 +180,11 @@ public class DirectionsActivity extends AppCompatActivity {
         /* Line for GPS detection */
         var listenToGps = getIntent().getBooleanExtra(EXTRA_LISTEN_TO_GPS, true);
         if (!listenToGps) setupLocationListener();
+        saveProfile();
+        SharedPreferences prefs = getSharedPreferences("X", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastActivity", getClass().getName());
+        editor.commit();
     }
 
     public void onNextClicked(View view) {
@@ -261,7 +276,7 @@ public class DirectionsActivity extends AppCompatActivity {
             //Warning shows up once route is completed
             Utilities.showAlert(this, "Route is completed");
         }
-
+        saveProfile();
     }
 
     public void onPreviousClicked(View view) {
@@ -338,6 +353,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
 
         }
+        saveProfile();
     }
 
     public void onCancelDirectionsClicked(View view) {
@@ -750,7 +766,7 @@ public class DirectionsActivity extends AppCompatActivity {
                     });
             builder.show();
 
-
+            saveProfile();
         }
 
     }
@@ -891,6 +907,33 @@ public class DirectionsActivity extends AppCompatActivity {
         else{
             Utilities.showAlert(this, "Route is complete.");
         }
+        saveProfile();
+    }
+
+    public void loadProfile(){
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        Gson gson = new Gson();
+        String jsonOrdered = preferences.getString("Ordered", null);
+        if(jsonOrdered != null){
+            Type type2 = new TypeToken<List<ExhibitItem>>(){}.getType();
+            ordered = gson.fromJson(jsonOrdered, type2);
+            count = preferences.getInt("Count", 0);
+            whereToCount = preferences.getInt("WCount", 0);
+        }
+    }
+    public void saveProfile(){
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        //String json = gson.toJson(route);
+        String jsonOrder = gson.toJson(ordered);
+        int countData = count;
+        int whereToCountData = whereToCount;
+        //editor.putString("Route", json);
+        editor.putString("Ordered", jsonOrder);
+        editor.putInt("Count", countData);
+        editor.putInt("WCount", whereToCountData);
+        editor.commit();
     }
 
 }
