@@ -604,53 +604,55 @@ public class DirectionsActivity extends AppCompatActivity {
     public void ChangedLocation() {
         // Check if closest
         List<ExhibitItem> unvisited = ordered.subList(whereToCount, ordered.size());
-        Log.d("unvisitedAtNewFunction", unvisited.toString());
 
+        // Use offRoute detection to output the closest exhibits to the current location
         OffRouteDetection ord = new OffRouteDetection(currentLocation,ExhibitsList);
-        Log.d("ordNearest",ord.nearest().getId());
         ExhibitItem nearestExhibitItem = ord.nearest();
+
+        // Check if it has parents id, only records parents
         if(ord.nearest().getParentId().equals("NULLNULLNULL")) {
             nearest = ord.nearest().getId();
         }
         else {
             nearest = ord.nearest().getParentId();
         }
+
+        // Find the shortest Dijkstra path to
         rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
 
-        Log.d("unvisitedInitial", unvisited.toString());
 
-        Log.d("orderedHere", ordered.toString());
-        // if we are off-route
+        // if we are not at the exact exhibit as before
         if (nearest != ordered.get(whereToCount).getId()) {
-            Log.d("nearestInitial", nearestExhibitItem.getId());
-            Boolean offRoute = false;
+
+            Boolean replan = false;
             // Check if the current location is at an exhibit later in plan
             Double closestDist = Double.POSITIVE_INFINITY;
             ExhibitItem nearestInList = null;
+
+            // This loops through the exhibits on the rest of the list
+            // Check if we are closer to any exhibits on the rest of the list, if so, need replan
             for (ExhibitItem i : unvisited) {
                 Log.d("i", i.getId());
-//                if (nearestExhibitItem.getId().equals(i.getId()) || nearestExhibitItem.getParentId().equals(i.getId())) {
                 GraphPath currentPath = DijkstraShortestPath.findPathBetween(g, nearest, i.getId());
                 Double currentDist = currentPath.getWeight();
 
                 if (currentDist < closestDist) {
                     closestDist = currentDist;
                     nearestInList = i;
-//                    offRoute = true;
                 }
             }
 
-            Log.d("nearestInList", nearestInList.getId());
-            Log.d("Nearest", nearest);
 
+            // If we are closer to an exhibit later in plan instead of the current destination
+            // Set off-route replan to true
             if (nearestInList.getId() != ordered.get(count).getId()) {
-                offRoute = true;
+                replan = true;
             }
 
-            Log.d("offRouteBoolean", offRoute.toString());
+            Log.d("offRouteBoolean", replan.toString());
 
-            // If we are off-route (at an exhibit later in plan)
-            if (offRoute == true) {
+            // If we are off-route (closer to an exhibit later in plan)
+            if (replan == true) {
 
                 // First set up alarm asking if the user wants to be re-routed
                 var inputType = EditorInfo.TYPE_CLASS_NUMBER
@@ -665,15 +667,16 @@ public class DirectionsActivity extends AppCompatActivity {
                 var builder = new AlertDialog.Builder(this)
                         .setTitle("You are off-route, Reroute?")
                         .setView(layout)
+                        // If the user wants to replan
                         .setPositiveButton("Sure!", (dialog, which) -> {
                             //If the user wants to be re-directed
-//                            List<GraphPath<String, IdentifiedWeightedEdge>> previousHalf = route.subList(0, whereToCount);
-                            Log.d("unvisitedBefore", unvisited.toString());
+
+                            //First remove the entrance/exit gate because that would always be at the end
                             unvisited.remove(unvisited.size()-1);
+
+                            // Replan the rest of the exhibits
                             ShortestDistanceGreedy shortestDistanceGreedy = new ShortestDistanceGreedy(g, unvisited, nearestExhibitItem);
                             List<GraphPath<String, IdentifiedWeightedEdge>> nextHalf = shortestDistanceGreedy.getShortest();
-                            Log.d("secondaHalf", nextHalf.toString());
-
 
                             ArrayList<String> singlePath = new ArrayList<String>();
                             //Extract GraphPaths from route and create ArrayList of endVertex names
@@ -682,8 +685,8 @@ public class DirectionsActivity extends AppCompatActivity {
                                 singlePath.add(path.getEndVertex());
                             }
 
-                            Log.d("singlePath Array", singlePath.toString()); //Used for debugging
 
+                            // output the new plan for the unvisited exhibits
                             ArrayList<ExhibitItem> orderedUnvisited = new ArrayList<ExhibitItem>();
                             for (int i = 0; i < singlePath.size(); i++) {
                                 for (ExhibitItem exItem : unvisited) {
@@ -693,9 +696,8 @@ public class DirectionsActivity extends AppCompatActivity {
                                 }
                             }
 
+                            // in order to create the whole list, we need the visited exhibits plan
                             List<ExhibitItem> visited = ordered.subList(0, whereToCount);
-                            Log.d("newVisited", visited.toString());
-                            Log.d("newOrderedUnvisited", orderedUnvisited.toString());
 
                             ArrayList<ExhibitItem> totalList = new ArrayList<ExhibitItem>();
 
@@ -711,13 +713,14 @@ public class DirectionsActivity extends AppCompatActivity {
 //
                             }
 
+                            // now assign the new list or plan to ordered
                             totalList.addAll(orderedUnvisited);
-
-
                             ordered = totalList;
                             ordered.add(exitItem);
                             Log.d("newOrdered", ordered.toString());
 
+
+                            // We need to display whatever we have outputed next
                             nextPath = new ArrayList<Path>();
 
                             //Log.d("Click", route.get(count).toString()); //Used for debugging
