@@ -57,7 +57,8 @@ public class DirectionsActivity extends AppCompatActivity {
     ArrayList<Path> prevPath = new ArrayList<Path>();
     ArrayList<Path> currPath = new ArrayList<Path>();
     String nearest;
-    LatLng currentLocation = new LatLng(32.737986, -117.169499);
+    LatLng currentLocation = new LatLng(32.73561, -117.14936);
+    ExhibitItem exitItem;
 
     boolean listenToGps = true;
 
@@ -82,7 +83,7 @@ public class DirectionsActivity extends AppCompatActivity {
         g = ZooData.loadZooGraphJSON(this, "zoo_graph.json");
         vInfo = ZooData.loadVertexInfoJSON(this,"zoo_node_info.json");
         eInfo = ZooData.loadEdgeInfoJSON(this,"zoo_edge_info.json");
-        ExhibitItem exitItem = new ExhibitItem("entrance_exit_gate","Entrance and Exit Gate", vInfo.get("entrance_exit_gate").kind,new Tags(exitTags));
+        exitItem = new ExhibitItem("entrance_exit_gate","Entrance and Exit Gate", vInfo.get("entrance_exit_gate").kind,new Tags(exitTags));
         exitItem.setLat(vInfo.get("entrance_exit_gate").lat);
         exitItem.setLng(vInfo.get("entrance_exit_gate").lng);
         ordered.add(exitItem);
@@ -110,6 +111,7 @@ public class DirectionsActivity extends AppCompatActivity {
         //Shortest Route created
         //ShortestDistance shortDist = new ShortestDistance(g,ordered);
         OffRouteDetection ord = new OffRouteDetection(currentLocation,ExhibitsList);
+        Log.d("ExhibitList", ExhibitsList.toString());
         Log.d("ordNearest",ord.nearest().getId());
         if(ord.nearest().getParentId().equals("NULLNULLNULL")) {
             nearest = ord.nearest().getId();
@@ -165,7 +167,7 @@ public class DirectionsActivity extends AppCompatActivity {
         adapter.setRouteItems(pathsBetweenExhibits);
 
         /* Permissions Setup */
-//        if (permissionChecker.ensurePermissions()) return;
+        if (permissionChecker.ensurePermissions()) return;
 
         /* Line for GPS detection */
         var listenToGps = getIntent().getBooleanExtra(EXTRA_LISTEN_TO_GPS, true);
@@ -588,167 +590,270 @@ public class DirectionsActivity extends AppCompatActivity {
         List<ExhibitItem> unvisited = ordered.subList(whereToCount, ordered.size());
         Log.d("unvisitedAtNewFunction", unvisited.toString());
 
-        Log.d("currentLocationNew", currentLocation.toString());
-        OffRouteDetection offRouteDetection = new OffRouteDetection(currentLocation, unvisited);
+        OffRouteDetection ord = new OffRouteDetection(currentLocation,ExhibitsList);
+        Log.d("ordNearest",ord.nearest().getId());
+        ExhibitItem nearestExhibitItem = ord.nearest();
+        if(ord.nearest().getParentId().equals("NULLNULLNULL")) {
+            nearest = ord.nearest().getId();
+        }
+        else {
+            nearest = ord.nearest().getParentId();
+        }
+        rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
 
-        ExhibitItem nearest = offRouteDetection.nearest();
+        Log.d("unvisitedInitial", unvisited.toString());
 
-        Log.d("nearestID", nearest.getId().toString());
-        Log.d("currentID", ordered.get(whereToCount).getId().toString());
-
-        Log.d("currentRouteInChaged", route.toString());
-
+        Log.d("orderedHere", ordered.toString());
         // if we are off-route
-        if (nearest.getId() != ordered.get(whereToCount).getId()) {
-            // First set up alarm asking if the user wants to be re-routed
-            var inputType = EditorInfo.TYPE_CLASS_NUMBER
-                    | EditorInfo.TYPE_NUMBER_FLAG_SIGNED
-                    | EditorInfo.TYPE_NUMBER_FLAG_DECIMAL;
+        if (nearest != ordered.get(whereToCount).getId()) {
+            Log.d("nearestInitial", nearestExhibitItem.getId());
+            Boolean offRoute = false;
+            // Check if the current location is at an exhibit later in plan
+            for (ExhibitItem i : unvisited) {
+                Log.d("i", i.getId());
+                if (nearestExhibitItem.getId().equals(i.getId()) || nearestExhibitItem.getParentId().equals(i.getId())) {
+
+                    offRoute = true;
+                }
+            }
+
+            Log.d("offRouteBoolean", offRoute.toString());
+
+            // If we are off-route (at an exhibit later in plan)
+            if (offRoute == true) {
+
+                // First set up alarm asking if the user wants to be re-routed
+                var inputType = EditorInfo.TYPE_CLASS_NUMBER
+                        | EditorInfo.TYPE_NUMBER_FLAG_SIGNED
+                        | EditorInfo.TYPE_NUMBER_FLAG_DECIMAL;
 
 
-            final LinearLayout layout = new LinearLayout(this);
-            layout.setDividerPadding(8);
-            layout.setOrientation(LinearLayout.VERTICAL);
+                final LinearLayout layout = new LinearLayout(this);
+                layout.setDividerPadding(8);
+                layout.setOrientation(LinearLayout.VERTICAL);
 
-            var builder = new AlertDialog.Builder(this)
-                    .setTitle("You are off-route, Reroute?")
-                    .setView(layout)
-                    .setPositiveButton("Sure!", (dialog, which) -> {
-                        //If the user wants to be re-directed
-                        List<GraphPath<String, IdentifiedWeightedEdge>> previousHalf = route.subList(0, whereToCount);
-                        ShortestDistanceGreedy shortestDistanceGreedy = new ShortestDistanceGreedy(g, unvisited, nearest);
-                        List<GraphPath<String, IdentifiedWeightedEdge>> nextHalf = shortestDistanceGreedy.getShortest();
-                        nextPath = new ArrayList<Path>();
-                        Log.d("previousHalf", previousHalf.toString());
-                        Log.d("secondaHalf", nextHalf.toString());
-
-                        List<GraphPath<String, IdentifiedWeightedEdge>> cmobinedList = new ArrayList<GraphPath<String, IdentifiedWeightedEdge>>();
-                        cmobinedList.addAll(previousHalf);
-
-                        Log.d("originalDestination", ordered.get(whereToCount-1).toString());
-                        Log.d("currentReRouteDestination", nearest.toString());
-                        GraphPath<String, IdentifiedWeightedEdge> middleRoute =
-                                DijkstraShortestPath.findPathBetween(g, ordered.get(whereToCount-1).getId(), nearest.getId());
+                var builder = new AlertDialog.Builder(this)
+                        .setTitle("You are off-route, Reroute?")
+                        .setView(layout)
+                        .setPositiveButton("Sure!", (dialog, which) -> {
+                            //If the user wants to be re-directed
+//                            List<GraphPath<String, IdentifiedWeightedEdge>> previousHalf = route.subList(0, whereToCount);
+                            Log.d("unvisitedBefore", unvisited.toString());
+                            unvisited.remove(unvisited.size()-1);
+                            ShortestDistanceGreedy shortestDistanceGreedy = new ShortestDistanceGreedy(g, unvisited, nearestExhibitItem);
+                            List<GraphPath<String, IdentifiedWeightedEdge>> nextHalf = shortestDistanceGreedy.getShortest();
+                            Log.d("secondaHalf", nextHalf.toString());
 
 
-//                        Log.d("middleRoute", middleRoute.toString());
-                        cmobinedList.add(middleRoute);
-                        cmobinedList.addAll(nextHalf);
-
-                        route = cmobinedList;
-
-                        Log.d("newlyChangedRoute",route.toString());
-
-
-                        ArrayList<String> singlePath = new ArrayList<String>();
-                        double dist = 0.0;
-                        ArrayList<Double> dists = new ArrayList<Double>();
-                        //Extract GraphPaths from route and create ArrayList of endVertex names
-                        //Also sum up distance
-                        for(GraphPath<String, IdentifiedWeightedEdge> path : route) {
-                            singlePath.add(path.getEndVertex());
-                        }
-
-                        Log.d("singlePath Array", singlePath.toString()); //Used for debugging
-
-                        ArrayList<ExhibitItem> orderedUnvisited = new ArrayList<ExhibitItem>();
-                        for(int i = 0; i < singlePath.size(); i++) {
-                            for(ExhibitItem exItem: unvisited) {
-                                if (exItem.getId().equals(singlePath.get(i)) || exItem.getParentId().equals(singlePath.get(i))) {
-                                    orderedUnvisited.add(exItem);
-                                }
+                            ArrayList<String> singlePath = new ArrayList<String>();
+                            //Extract GraphPaths from route and create ArrayList of endVertex names
+                            //Also sum up distance
+                            for (GraphPath<String, IdentifiedWeightedEdge> path : nextHalf) {
+                                singlePath.add(path.getEndVertex());
                             }
-                        }
 
-                        List<ExhibitItem> visited = ordered.subList(0, whereToCount);
-                        Log.d("newOrdered", visited.toString());
-                        Log.d("newOrderedUnvisited", orderedUnvisited.toString());
+                            Log.d("singlePath Array", singlePath.toString()); //Used for debugging
 
-                        ArrayList<ExhibitItem> totalList = new ArrayList<ExhibitItem>();
-
-                        totalList.addAll(visited);
-                        totalList.addAll(orderedUnvisited);
-
-
-                        ordered = totalList;
-                        Log.d("newOrdered222", ordered.toString());
-
-                        Path p;
-
-                        // Create Initial NextPath
-                        count++;
-                        for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
-                            p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
-                                    vInfo.get(g.getEdgeTarget(e).toString()).name
-                                    , g.getEdgeWeight(e),
-                                    eInfo.get(e.getId()).street);
-                            nextPath.add(p);
-                        }
-
-                        //Filter and swap directions if necessary
-                        whereToCount++;
-                        if (whereToCount < ordered.size()) {
-                            for (int i = nextPath.size() - 1; i >= 0; i--) {
-                                if (i == nextPath.size() - 1) {
-                                    if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                                        nextPath.get(i).swap();
-                                    }
-                                } else {
-                                    if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                                        nextPath.get(i).swap();
+                            ArrayList<ExhibitItem> orderedUnvisited = new ArrayList<ExhibitItem>();
+                            for (int i = 0; i < singlePath.size(); i++) {
+                                for (ExhibitItem exItem : unvisited) {
+                                    if (exItem.getId().equals(singlePath.get(i)) || exItem.getParentId().equals(singlePath.get(i))) {
+                                        orderedUnvisited.add(exItem);
                                     }
                                 }
                             }
+
+                            List<ExhibitItem> visited = ordered.subList(0, whereToCount);
+                            Log.d("newVisited", visited.toString());
+                            Log.d("newOrderedUnvisited", orderedUnvisited.toString());
+
+                            ArrayList<ExhibitItem> totalList = new ArrayList<ExhibitItem>();
+
+                            totalList.addAll(visited);
+                            if (nearestExhibitItem.getParentId() == "NULLNULLNULL") {
+                                totalList.add(nearestExhibitItem);
+                            } else {
+                                for (ExhibitItem i : ExhibitsList) {
+                                    if (i.getId().equals(nearestExhibitItem.getParentId())) {
+                                        totalList.add(i);
+                                    }
+                                }
+//
+                            }
+
+                            totalList.addAll(orderedUnvisited);
+
+
+                            ordered = totalList;
+                            ordered.add(exitItem);
+                            Log.d("newOrdered", ordered.toString());
+
+                            nextPath = new ArrayList<Path>();
+
+                            //Log.d("Click", route.get(count).toString()); //Used for debugging
+
+                            Path p;
+
+                            // Create Initial NextPath
+                            count++;
+                            rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
+                            for (IdentifiedWeightedEdge e : rou.getEdgeList()) {
+                                p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                                        vInfo.get(g.getEdgeTarget(e).toString()).name
+                                        , g.getEdgeWeight(e),
+                                        eInfo.get(e.getId()).street);
+                                nextPath.add(p);
+                            }
+
+                            //Filter and swap directions if necessary
+                            whereToCount++;
+                            if(whereToCount < ordered.size() ) {
+                                for (int i = nextPath.size() - 1; i >= 0; i--) {
+                                    if (i == nextPath.size() - 1) {
+                                        if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                                            nextPath.get(i).swap();
+                                        }
+                                    } else {
+                                        if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                                            nextPath.get(i).swap();
+                                        }
+                                    }
+                                }
+                            }
+                            // Once ordered list has been traversed we will set up check if we need to swap directions
+                            // on final directions to exit.
+                            else {
+                                for( int i = nextPath.size() - 1; i >= 0; i--) {
+                                    if(i == nextPath.size() - 1) {
+                                        if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                                            nextPath.get(i).swap();
+                                        }
+                                    }
+                                    else {
+                                        if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                                            nextPath.get(i).swap();
+                                        }
+                                    }
+                                }
+                            }
+
+                            if(dir) {
+                                Path bp;
+                                for (int i = 0; i < nextPath.size() - 1; i++) {
+                                    if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
+                                        bp = new Path(nextPath.get(i).getSource(),
+                                                nextPath.get(i + 1).getTarget(),
+                                                nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
+                                                nextPath.get(i).getStreet());
+
+                                        nextPath.set(i, bp);
+                                        nextPath.remove(i + 1);
+                                        i--;
+                                    }
+                                }
+                                adapter.setRouteItems(nextPath);
+                            }
+                            else {
+                                adapter.setRouteItems(nextPath);
+                            }
+                            //Log.d("CheckNext", nextPath.toString()); //Used for debugging
+
+
+                            //Updates title of page with correct exhibit we are trying to get to
+                            TextView wT = findViewById(R.id.whereTo);
+                            if (whereToCount < ordered.size() ) {
+                                wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+                            }
+                            else {
+                                wT.setText("Directions to Exit");
+                            }
+                        })
+                        .setNegativeButton("Mind your business :(", (dialog, which) -> {
+                            dialog.cancel();
+                        });
+                builder.show();
+
+                // If we only need to replan
+            } else {
+                //Show notification that our location changed
+                Utilities.showAlert(this, "Current Location Changes!");
+
+                Path p;
+
+                Log.d("nearestNow", nearest);
+                // Create Initial NextPath
+                rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
+                for (IdentifiedWeightedEdge e : rou.getEdgeList()) {
+                    p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                            vInfo.get(g.getEdgeTarget(e).toString()).name
+                            , g.getEdgeWeight(e),
+                            eInfo.get(e.getId()).street);
+                    nextPath.add(p);
+                }
+
+                //Filter and swap directions if necessary
+                if(whereToCount < ordered.size() ) {
+                    for (int i = nextPath.size() - 1; i >= 0; i--) {
+                        if (i == nextPath.size() - 1) {
+                            if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                                nextPath.get(i).swap();
+                            }
+                        } else {
+                            if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                                nextPath.get(i).swap();
+                            }
                         }
-                        // Once ordered list has been traversed we will set up check if we need to swap directions
-                        // on final directions to exit.
+                    }
+                }
+                // Once ordered list has been traversed we will set up check if we need to swap directions
+                // on final directions to exit.
+                else {
+                    for( int i = nextPath.size() - 1; i >= 0; i--) {
+                        if(i == nextPath.size() - 1) {
+                            if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                                nextPath.get(i).swap();
+                            }
+                        }
                         else {
-                            for (int i = nextPath.size() - 1; i >= 0; i--) {
-                                if (i == nextPath.size() - 1) {
-                                    if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
-                                        nextPath.get(i).swap();
-                                    }
-                                } else {
-                                    if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                                        nextPath.get(i).swap();
-                                    }
-                                }
+                            if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                                nextPath.get(i).swap();
                             }
                         }
+                    }
+                }
 
-                        if (dir) {
-                            Path bp;
-                            for (int i = 0; i < nextPath.size() - 1; i++) {
-                                if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
-                                    bp = new Path(nextPath.get(i).getSource(),
-                                            nextPath.get(i + 1).getTarget(),
-                                            nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
-                                            nextPath.get(i).getStreet());
+                if(dir) {
+                    Path bp;
+                    for (int i = 0; i < nextPath.size() - 1; i++) {
+                        if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
+                            bp = new Path(nextPath.get(i).getSource(),
+                                    nextPath.get(i + 1).getTarget(),
+                                    nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
+                                    nextPath.get(i).getStreet());
 
-                                    nextPath.set(i, bp);
-                                    nextPath.remove(i + 1);
-                                    i--;
-                                }
-                            }
-                            adapter.setRouteItems(nextPath);
-                        } else {
-                            adapter.setRouteItems(nextPath);
+                            nextPath.set(i, bp);
+                            nextPath.remove(i + 1);
+                            i--;
                         }
-                        //Log.d("CheckNext", nextPath.toString()); //Used for debugging
+                    }
+                    adapter.setRouteItems(nextPath);
+                }
+                else {
+                    adapter.setRouteItems(nextPath);
+                }
+                //Log.d("CheckNext", nextPath.toString()); //Used for debugging
 
 
-                        //Updates title of page with correct exhibit we are trying to get to
-                        TextView wT = findViewById(R.id.whereTo);
-                        if (whereToCount < ordered.size()) {
-                            wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
-                        } else {
-                            wT.setText("Directions to Exit");
-                        }
-                    })
-                    .setNegativeButton("Mind your business :(", (dialog, which) -> {
-                        dialog.cancel();
-                    });
-            builder.show();
+                //Updates title of page with correct exhibit we are trying to get to
+                TextView wT = findViewById(R.id.whereTo);
+                if (whereToCount < ordered.size() ) {
+                    wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+                }
+                else {
+                    wT.setText("Directions to Exit");
+                }
+
+            }
 
 
         }
@@ -797,19 +902,28 @@ public class DirectionsActivity extends AppCompatActivity {
 
     public void onSkipClicked(View view){
         if(count < ordered.size() - 2) {
-            nextPath = new ArrayList<Path>();
+
             int nextE = whereToCount + 1;
-            Log.d("orderedBefore", ordered.toString());
             ordered.remove(nextE);
-            Log.d("orderedAfer", ordered.toString());
 
-            ShortestDistance shortDist = new ShortestDistance(g,ordered);
-            route = shortDist.getShortest();
+            // Check if closest
+            List<ExhibitItem> unvisited = ordered.subList(whereToCount, ordered.size());
+            Log.d("unvisitedAtNewFunction", unvisited.toString());
 
-            //Log.d("Click", route.get(count).toString()); //Used for debugging
+            OffRouteDetection ord = new OffRouteDetection(currentLocation,ExhibitsList);
+            Log.d("ordNearest",ord.nearest().getId());
+            ExhibitItem nearestExhibitItem = ord.nearest();
+            if(ord.nearest().getParentId().equals("NULLNULLNULL")) {
+                nearest = ord.nearest().getId();
+            }
+            else {
+                nearest = ord.nearest().getParentId();
+            }
+            rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
+
+            nextPath = new ArrayList<Path>();
 
             Path p;
-
             // Create Initial NextPath
             count++;
             rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());

@@ -9,13 +9,13 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/directions_list"
         android:layout_width="409dp"
-        android:layout_height="592dp"
+        android:layout_height="520dp"
+        android:layout_marginTop="56dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.496" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/Next"
@@ -60,8 +60,8 @@
         android:id="@+id/CancelDirections"
         android:layout_width="110dp"
         android:layout_height="50dp"
-        android:text="Cancel"
         android:onClick="onCancelDirectionsClicked"
+        android:text="Cancel"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/whereTo"
         app:layout_constraintHorizontal_bias="0.051"
@@ -98,8 +98,8 @@
         android:id="@+id/settings"
         android:layout_width="122dp"
         android:layout_height="49dp"
-        android:text="Settings"
         android:onClick="onSettingsClicked"
+        android:text="Settings"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
