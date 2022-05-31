@@ -9,6 +9,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -22,12 +24,18 @@ import android.widget.TextView;
 
 import com.example.zookeeperteam20.location.PermissionChecker;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -71,22 +79,29 @@ public class DirectionsActivity extends AppCompatActivity {
 
         // Extract ordered from PlanActivity
         ordered = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("Directions");
-        Log.d("Directions UI Ordered", ordered.toString());
+        //Log.d("Directions UI Ordered", ordered.toString());
 
         //Load Graph, VetexInfo, and EdgeInfo
         g = ZooData.loadZooGraphJSON(this, "zoo_graph.json");
         vInfo = ZooData.loadVertexInfoJSON(this,"zoo_node_info.json");
         eInfo = ZooData.loadEdgeInfoJSON(this,"zoo_edge_info.json");
         //Shortest Route created
+        loadOrdered();
         ShortestDistance shortDist = new ShortestDistance(g,ordered);
         route = shortDist.getShortest();
         adapter = new DirectionsAdapter();
         //DirectionsAdapter adapter = new DirectionsAdapter();
         adapter.setHasStableIds(true);
-
+        loadProfile();
         // Set title of activity (text at top)
         TextView wT = findViewById(R.id.whereTo);
-        wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+        if(whereToCount < ordered.size()){
+            wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
+        }
+        else{
+            wT.setText("Directions to Exit");
+        }
+
 
 
        recyclerView = findViewById(R.id.directions_list);
@@ -96,7 +111,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
        Log.d("currentRoute", route.toString());
 
-       for(IdentifiedWeightedEdge e : route.get(0).getEdgeList()) {
+       for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
            p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                    vInfo.get(g.getEdgeTarget(e).toString()).name
                    ,g.getEdgeWeight(e),
@@ -130,6 +145,11 @@ public class DirectionsActivity extends AppCompatActivity {
         /* Line for GPS detection */
         var listenToGps = getIntent().getBooleanExtra(EXTRA_LISTEN_TO_GPS, true);
         if (!listenToGps) setupLocationListener();
+        saveProfile();
+        SharedPreferences prefs = getSharedPreferences("X", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastActivity", getClass().getName());
+        editor.commit();
     }
 
     public void onNextClicked(View view) {
@@ -220,7 +240,7 @@ public class DirectionsActivity extends AppCompatActivity {
             //Warning shows up once route is completed
             Utilities.showAlert(this, "Route is completed");
         }
-
+        saveProfile();
     }
 
     public void onPreviousClicked(View view) {
@@ -298,11 +318,13 @@ public class DirectionsActivity extends AppCompatActivity {
 
 
         }
+        saveProfile();
     }
 
     public void onCancelDirectionsClicked(View view) {
         Intent intent = new Intent(this, Zoo_activity.class);
         startActivity(intent);
+        saveProfile();
     }
 
 
@@ -511,6 +533,7 @@ public class DirectionsActivity extends AppCompatActivity {
                 dir = false;
             }
         }
+        saveProfile();
     }
 
 
@@ -755,6 +778,7 @@ public class DirectionsActivity extends AppCompatActivity {
                     dialog.cancel();
                 });
         builder.show();
+        saveProfile();
     }
 
     public void onSkipClicked(View view){
@@ -852,6 +876,66 @@ public class DirectionsActivity extends AppCompatActivity {
             else{
                 Utilities.showAlert(this, "Route is complete.");
             }
+        saveProfile();
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        saveProfile();
+        SharedPreferences prefs = getSharedPreferences("X", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastActivity", getClass().getName());
+        editor.commit();
+    }
+    public void loadProfile(){
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        Gson gson = new Gson();
+        //String json = preferences.getString("Route", null);
+        String jsonOrdered = preferences.getString("Ordered", null);
+        if(jsonOrdered != null){
+            //Type type = new TypeToken<ArrayList<GraphPath<String, IdentifiedWeightedEdge>>>(){}.getType();
+            Type type2 = new TypeToken<List<ExhibitItem>>(){}.getType();
+            //route = gson.fromJson(json,type);
+            ordered = gson.fromJson(jsonOrdered, type2);
+            count = preferences.getInt("Count", 0);
+            whereToCount = preferences.getInt("WCount", 0);
+        }
+    }
+    public void loadOrdered(){
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        Gson gson = new Gson();
+        String jsonOrdered = preferences.getString("Ordered", null);
+        if(jsonOrdered != null){
+
+            Type type2 = new TypeToken<List<ExhibitItem>>(){
+            }.getType();
+            ordered = gson.fromJson(jsonOrdered, type2);
+        }
+    }
+    public void saveProfile(){
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        Gson gson = new Gson();
+        //String json = gson.toJson(route);
+        String jsonOrder = gson.toJson(ordered);
+        int countData = count;
+        int whereToCountData = whereToCount;
+        //editor.putString("Route", json);
+        editor.putString("Ordered", jsonOrder);
+        editor.putInt("Count", countData);
+        editor.putInt("WCount", whereToCountData);
+        editor.commit();
     }
 
+    /*
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences prefs = getSharedPreferences("X", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastActivity", getClass().getName());
+        editor.commit();
+    }
+
+     */
 }

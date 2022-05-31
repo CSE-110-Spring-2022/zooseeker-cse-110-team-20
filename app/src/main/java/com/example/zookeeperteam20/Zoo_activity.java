@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -130,7 +131,10 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
                 Log.d("oof", selected.toString());
             }
         });
-
+        SharedPreferences prefs = getSharedPreferences("X",MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastActivity", getClass().getName());
+        editor.commit();
     }
 
     @Override
@@ -156,7 +160,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
                 noRepeats.add(elem);
             }
         }
-        intent.putExtra("plan",noRepeats);
+        intent.putExtra("plan",selected);
         startActivity(intent);
     }
 
@@ -171,4 +175,14 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         counter.setText(String.valueOf(count));
         selected.clear();
     }
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        SharedPreferences prefs = getSharedPreferences("X",MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("lastActivity", getClass().getName());
+        editor.commit();
+    }
+
 }

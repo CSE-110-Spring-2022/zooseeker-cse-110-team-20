@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -539,6 +540,7 @@ public class NewRoboTest {
             assertEquals(previousTarget,activity.currPath.get(activity.currPath.size()-1).getTarget());
         });
     }
+
 
 }
 
