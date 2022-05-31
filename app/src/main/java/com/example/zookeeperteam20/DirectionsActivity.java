@@ -29,6 +29,7 @@ import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class DirectionsActivity extends AppCompatActivity {
     int count = 0;
     public RecyclerView recyclerView;
     List<GraphPath<String, IdentifiedWeightedEdge>> route;
+    GraphPath<String, IdentifiedWeightedEdge> rou;
     ArrayList<Path> pathsBetweenExhibits = new ArrayList<Path>();
     Graph<String, IdentifiedWeightedEdge> g;
     DirectionsAdapter adapter = new DirectionsAdapter();
@@ -50,12 +52,14 @@ public class DirectionsActivity extends AppCompatActivity {
     Map<String, ZooData.EdgeInfo> eInfo;
     int whereToCount = 0;
     ArrayList<ExhibitItem> ordered = new ArrayList<ExhibitItem>();
+    ArrayList<ExhibitItem> ExhibitsList = new ArrayList<ExhibitItem>();
     ArrayList<Path> nextPath = new ArrayList<Path>();
     ArrayList<Path> prevPath = new ArrayList<Path>();
     ArrayList<Path> currPath = new ArrayList<Path>();
+    String nearest;
     LatLng currentLocation = new LatLng(32.737986, -117.169499);
 
-    boolean listenToGps = false;
+    boolean listenToGps = true;
 
     //    @SuppressLint("MissingPermission")
 
@@ -71,17 +75,53 @@ public class DirectionsActivity extends AppCompatActivity {
 
         // Extract ordered from PlanActivity
         ordered = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("Directions");
+        List<String> exitTags = Arrays.asList("enter", "leave", "start", "begin", "entrance", "exit");
         Log.d("Directions UI Ordered", ordered.toString());
 
         //Load Graph, VetexInfo, and EdgeInfo
         g = ZooData.loadZooGraphJSON(this, "zoo_graph.json");
         vInfo = ZooData.loadVertexInfoJSON(this,"zoo_node_info.json");
         eInfo = ZooData.loadEdgeInfoJSON(this,"zoo_edge_info.json");
+        ExhibitItem exitItem = new ExhibitItem("entrance_exit_gate","Entrance and Exit Gate", vInfo.get("entrance_exit_gate").kind,new Tags(exitTags));
+        exitItem.setLat(vInfo.get("entrance_exit_gate").lat);
+        exitItem.setLng(vInfo.get("entrance_exit_gate").lng);
+        ordered.add(exitItem);
+
+        ExhibitItem e0;
+        for (ZooData.VertexInfo node : vInfo.values()) {
+            e0 = new ExhibitItem(node.id,node.name,node.kind,new Tags(node.tags));
+            if (node.parent_id != null){
+                e0.setParentId(node.parent_id);
+                e0.setParentName(vInfo.get(node.parent_id).name);
+                e0.setLat(vInfo.get(node.parent_id).lat);
+                e0.setLng(vInfo.get(node.parent_id).lng);
+                Log.d("currentLatNameWithParents", node.id);
+                Log.d("currentLatWithParents", vInfo.get(node.parent_id).lat.toString());
+            } else {
+                e0.setLat(vInfo.get(node.id).lat);
+                Log.d("currentLatName", node.name);
+                Log.d("currentLat", vInfo.get(node.id).lat.toString());
+                e0.setLng(vInfo.get(node.id).lng);
+            }
+            ExhibitsList.add(e0);
+            Log.d("ZooData", node.name);
+        }
+
         //Shortest Route created
-        ShortestDistance shortDist = new ShortestDistance(g,ordered);
-        route = shortDist.getShortest();
+        //ShortestDistance shortDist = new ShortestDistance(g,ordered);
+        OffRouteDetection ord = new OffRouteDetection(currentLocation,ExhibitsList);
+        Log.d("ordNearest",ord.nearest().getId());
+        if(ord.nearest().getParentId().equals("NULLNULLNULL")) {
+            nearest = ord.nearest().getId();
+        }
+        else {
+            nearest = ord.nearest().getParentId();
+        }
+        rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
+
+
+        //Set up Adapter
         adapter = new DirectionsAdapter();
-        //DirectionsAdapter adapter = new DirectionsAdapter();
         adapter.setHasStableIds(true);
 
         // Set title of activity (text at top)
@@ -89,26 +129,26 @@ public class DirectionsActivity extends AppCompatActivity {
         wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
 
 
-       recyclerView = findViewById(R.id.directions_list);
-       recyclerView.setLayoutManager(new LinearLayoutManager(this));
-       recyclerView.setAdapter(adapter);
-       Path p;
+        recyclerView = findViewById(R.id.directions_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+        Path p;
 
-       Log.d("currentRoute", route.toString());
+        //Log.d("currentRoute", route.toString());
 
-       for(IdentifiedWeightedEdge e : route.get(0).getEdgeList()) {
-           p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
-                   vInfo.get(g.getEdgeTarget(e).toString()).name
-                   ,g.getEdgeWeight(e),
-                   eInfo.get(e.getId()).street);
-           pathsBetweenExhibits.add(p);
+        for(IdentifiedWeightedEdge e : rou.getEdgeList()) {
+            p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                    vInfo.get(g.getEdgeTarget(e).toString()).name
+                    ,g.getEdgeWeight(e),
+                    eInfo.get(e.getId()).street);
+            pathsBetweenExhibits.add(p);
 //           Log.d("newPath", p.toString());
-       }
+        }
 
 
 
 
-       //Filter amd swap directions if necessary
+        //Filter amd swap directions if necessary
         if(whereToCount < ordered.size() ) {
             for (int i = pathsBetweenExhibits.size() - 1; i >= 0; i--) {
                 if (i == pathsBetweenExhibits.size() - 1) {
@@ -133,19 +173,20 @@ public class DirectionsActivity extends AppCompatActivity {
     }
 
     public void onNextClicked(View view) {
-        if(count < route.size() - 1) {
+        if(count < ordered.size() - 1) {
             reverse = false;
             forward = true;
 
             nextPath = new ArrayList<Path>();
 
-            Log.d("Click", route.get(count).toString()); //Used for debugging
+            //Log.d("Click", route.get(count).toString()); //Used for debugging
 
             Path p;
 
             // Create Initial NextPath
             count++;
-            for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+            rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
+            for (IdentifiedWeightedEdge e : rou.getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                         vInfo.get(g.getEdgeTarget(e).toString()).name
                         , g.getEdgeWeight(e),
@@ -232,8 +273,9 @@ public class DirectionsActivity extends AppCompatActivity {
             forward = false;
             prevPath = new ArrayList<Path>();
             Path p;
-
-            for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+            count--;
+            rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
+            for(IdentifiedWeightedEdge e : rou.getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                         vInfo.get(g.getEdgeTarget(e).toString()).name,
                         g.getEdgeWeight(e),
@@ -243,11 +285,10 @@ public class DirectionsActivity extends AppCompatActivity {
 
             //Filter and swap directions if neccesary
             whereToCount--;
-            Log.d("orderedPrev",ordered.toString());
-            Log.d("WTC", String.valueOf(whereToCount));
-            Log.d("l",prevPath.get(0).getTarget());
-            Log.d("source",prevPath.get(0).getSource());
-            Collections.reverse(prevPath);
+           // Log.d("orderedPrev",ordered.toString());
+            //Log.d("WTC", String.valueOf(whereToCount));
+           // Log.d("l",prevPath.get(0).getTarget());
+            //Log.d("source",prevPath.get(0).getSource());
             if(whereToCount < ordered.size() ) {
                 for(int i = prevPath.size() - 1; i >= 0 ; i--) {
                     if (i == prevPath.size() - 1) {
@@ -265,7 +306,6 @@ public class DirectionsActivity extends AppCompatActivity {
             }
 
             //reverse every path in prevPath so directions make sense
-            count--;
 
             //Set Top Text
             TextView wT = findViewById(R.id.whereTo);
@@ -310,7 +350,7 @@ public class DirectionsActivity extends AppCompatActivity {
         Path p;
         if(!forward && !reverse){
             currPath = new ArrayList<Path>();
-            for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+            for(IdentifiedWeightedEdge e : rou.getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                         vInfo.get(g.getEdgeTarget(e).toString()).name,
                         g.getEdgeWeight(e),
@@ -382,7 +422,7 @@ public class DirectionsActivity extends AppCompatActivity {
         else if(forward && !reverse) {
             //Rebuild nextPath
             nextPath.clear();
-            for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+            for (IdentifiedWeightedEdge e : rou.getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                         vInfo.get(g.getEdgeTarget(e).toString()).name
                         , g.getEdgeWeight(e),
@@ -452,15 +492,13 @@ public class DirectionsActivity extends AppCompatActivity {
         else if(!forward && reverse) {
             //Rebuild prevPath
             prevPath.clear();
-            count++;
-            for(IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
+            for(IdentifiedWeightedEdge e : rou.getEdgeList()) {
                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
                         vInfo.get(g.getEdgeTarget(e).toString()).name,
                         g.getEdgeWeight(e),
                         eInfo.get(e.getId()).street);
                 prevPath.add(p);
             }
-            count--;
 
             //Swap directions if necessary
             Collections.reverse(prevPath);
@@ -758,100 +796,101 @@ public class DirectionsActivity extends AppCompatActivity {
     }
 
     public void onSkipClicked(View view){
-            if(count < route.size() - 2) {
-                nextPath = new ArrayList<Path>();
-                int nextE = whereToCount + 1;
-                Log.d("orderedBefore", ordered.toString());
-                ordered.remove(nextE);
-                Log.d("orderedAfer", ordered.toString());
+        if(count < ordered.size() - 2) {
+            nextPath = new ArrayList<Path>();
+            int nextE = whereToCount + 1;
+            Log.d("orderedBefore", ordered.toString());
+            ordered.remove(nextE);
+            Log.d("orderedAfer", ordered.toString());
 
-                ShortestDistance shortDist = new ShortestDistance(g,ordered);
-                route = shortDist.getShortest();
+            ShortestDistance shortDist = new ShortestDistance(g,ordered);
+            route = shortDist.getShortest();
 
-                Log.d("Click", route.get(count).toString()); //Used for debugging
+            //Log.d("Click", route.get(count).toString()); //Used for debugging
 
-                Path p;
+            Path p;
 
-                // Create Initial NextPath
-                count++;
-                for (IdentifiedWeightedEdge e : route.get(count).getEdgeList()) {
-                    p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
-                            vInfo.get(g.getEdgeTarget(e).toString()).name
-                            , g.getEdgeWeight(e),
-                            eInfo.get(e.getId()).street);
-                    nextPath.add(p);
-                }
+            // Create Initial NextPath
+            count++;
+            rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
+            for (IdentifiedWeightedEdge e : rou.getEdgeList()) {
+                p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
+                        vInfo.get(g.getEdgeTarget(e).toString()).name
+                        , g.getEdgeWeight(e),
+                        eInfo.get(e.getId()).street);
+                nextPath.add(p);
+            }
 
-                //Filter and swap directions if necessary
-                whereToCount++;
-                if(whereToCount < ordered.size()) {
-                    for (int i = nextPath.size() - 1; i >= 0; i--) {
-                        if (i == nextPath.size() - 1) {
-                            if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                                nextPath.get(i).swap();
-                            }
-                        } else {
-                            if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                                nextPath.get(i).swap();
-                            }
+            //Filter and swap directions if necessary
+            whereToCount++;
+            if(whereToCount < ordered.size()) {
+                for (int i = nextPath.size() - 1; i >= 0; i--) {
+                    if (i == nextPath.size() - 1) {
+                        if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
+                            nextPath.get(i).swap();
+                        }
+                    } else {
+                        if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                            nextPath.get(i).swap();
                         }
                     }
                 }
-                // Once ordered list has been traversed we will set up check if we need to swap directions
-                // on final directions to exit.
-                else {
-                    for( int i = nextPath.size() - 1; i >= 0; i--) {
-                        if(i == nextPath.size() - 1) {
-                            if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
-                                nextPath.get(i).swap();
-                            }
+            }
+            // Once ordered list has been traversed we will set up check if we need to swap directions
+            // on final directions to exit.
+            else {
+                for( int i = nextPath.size() - 1; i >= 0; i--) {
+                    if(i == nextPath.size() - 1) {
+                        if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
+                            nextPath.get(i).swap();
                         }
-                        else {
-                            if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                                nextPath.get(i).swap();
-                            }
+                    }
+                    else {
+                        if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
+                            nextPath.get(i).swap();
                         }
                     }
                 }
+            }
 
-                if(dir) {
-                    Path bp;
-                    for (int i = 0; i < nextPath.size() - 1; i++) {
-                        if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
-                            bp = new Path(nextPath.get(i).getSource(),
-                                    nextPath.get(i + 1).getTarget(),
-                                    nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
-                                    nextPath.get(i).getStreet());
+            if(dir) {
+                Path bp;
+                for (int i = 0; i < nextPath.size() - 1; i++) {
+                    if (nextPath.get(i).getStreet().equals(nextPath.get(i + 1).getStreet())) {
+                        bp = new Path(nextPath.get(i).getSource(),
+                                nextPath.get(i + 1).getTarget(),
+                                nextPath.get(i).getDistance() + nextPath.get(i + 1).getDistance(),
+                                nextPath.get(i).getStreet());
 
-                            nextPath.set(i, bp);
-                            nextPath.remove(i + 1);
-                            i--;
-                        }
+                        nextPath.set(i, bp);
+                        nextPath.remove(i + 1);
+                        i--;
                     }
-                    adapter.setRouteItems(nextPath);
                 }
-                else {
-                    adapter.setRouteItems(nextPath);
-                }
-                //Log.d("CheckNext", nextPath.toString()); //Used for debugging
+                adapter.setRouteItems(nextPath);
+            }
+            else {
+                adapter.setRouteItems(nextPath);
+            }
+            //Log.d("CheckNext", nextPath.toString()); //Used for debugging
 
 
-                //Updates title of page with correct exhibit we are trying to get to
-                TextView wT = findViewById(R.id.whereTo);
-                if (whereToCount < ordered.size() ) {
-                    wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
-                }
-                else {
-                    wT.setText("Directions to Exit");
-                }
+            //Updates title of page with correct exhibit we are trying to get to
+            TextView wT = findViewById(R.id.whereTo);
+            if (whereToCount < ordered.size() ) {
+                wT.setText("Directions to " + ordered.get(whereToCount).getExhibitName());
             }
-            else if(count < route.size()-1){
-                //Warning shows up once route is completed
-                Utilities.showAlert(this, "No more exhibits, press next to go to exit");
+            else {
+                wT.setText("Directions to Exit");
             }
-            else{
-                Utilities.showAlert(this, "Route is complete.");
-            }
+        }
+        else if(count < ordered.size()-1){
+            //Warning shows up once route is completed
+            Utilities.showAlert(this, "No more exhibits, press next to go to exit");
+        }
+        else{
+            Utilities.showAlert(this, "Route is complete.");
+        }
     }
 
 }
