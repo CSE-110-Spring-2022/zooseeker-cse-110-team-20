@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -132,10 +131,6 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
             }
         });
 
-        SharedPreferences prefs = getSharedPreferences("X",MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("lastActivity", getClass().getName());
-        editor.commit();
     }
 
     @Override
