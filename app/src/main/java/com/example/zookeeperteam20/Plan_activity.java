@@ -5,19 +5,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.View;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +48,6 @@ public class Plan_activity extends AppCompatActivity {
         selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
         ExhibitItem parent;
         ArrayList<ExhibitItem> noGroupRepeats = new ArrayList<ExhibitItem>();
-        loadProfile();
         for(ExhibitItem elem : selected){
             if(elem.getParentId().equals("NULLNULLNULL")) {
                 noGroupRepeats.add(elem);
@@ -120,11 +114,6 @@ public class Plan_activity extends AppCompatActivity {
         adapter.setExhibitItems(ordered,dists);
         //Log.d("oof",selected.toString()); //used for debugging
 
-        SharedPreferences prefs = getSharedPreferences("X",MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("lastActivity", getClass().getName());
-        editor.commit();
-        saveProfile();
     }
 
     //When Directions is clicked, we will forward data and go to new Activity
@@ -143,24 +132,5 @@ public class Plan_activity extends AppCompatActivity {
     public void onPlanClearClicked(View view) {
         Intent intent = new Intent(this, Zoo_activity.class);
         startActivity(intent);
-    }
-    public void loadProfile(){
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-        Gson gson = new Gson();
-
-        String select = preferences.getString("Selected", null);
-        if(select != null){
-            Type type3 = new TypeToken<ArrayList<ExhibitItem>>(){
-            }.getType();
-            selected = gson.fromJson(select, type3);
-        }
-    }
-    public void saveProfile(){
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        Gson gson = new Gson();
-        String select = gson.toJson(selected);
-        editor.putString("Selected", select);
-        editor.commit();
     }
 }
