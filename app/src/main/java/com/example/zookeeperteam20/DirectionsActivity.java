@@ -625,12 +625,26 @@ public class DirectionsActivity extends AppCompatActivity {
             Log.d("nearestInitial", nearestExhibitItem.getId());
             Boolean offRoute = false;
             // Check if the current location is at an exhibit later in plan
+            Double closestDist = Double.POSITIVE_INFINITY;
+            ExhibitItem nearestInList = null;
             for (ExhibitItem i : unvisited) {
                 Log.d("i", i.getId());
-                if (nearestExhibitItem.getId().equals(i.getId()) || nearestExhibitItem.getParentId().equals(i.getId())) {
+//                if (nearestExhibitItem.getId().equals(i.getId()) || nearestExhibitItem.getParentId().equals(i.getId())) {
+                GraphPath currentPath = DijkstraShortestPath.findPathBetween(g, nearest, i.getId());
+                Double currentDist = currentPath.getWeight();
 
-                    offRoute = true;
+                if (currentDist < closestDist) {
+                    closestDist = currentDist;
+                    nearestInList = i;
+//                    offRoute = true;
                 }
+            }
+
+            Log.d("nearestInList", nearestInList.getId());
+            Log.d("Nearest", nearest);
+
+            if (nearestInList.getId() != ordered.get(count).getId()) {
+                offRoute = true;
             }
 
             Log.d("offRouteBoolean", offRoute.toString());
@@ -798,6 +812,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
                 Log.d("nearestNow", nearest);
                 // Create Initial NextPath
+                nextPath.clear();
                 rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
                 for (IdentifiedWeightedEdge e : rou.getEdgeList()) {
                     p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
