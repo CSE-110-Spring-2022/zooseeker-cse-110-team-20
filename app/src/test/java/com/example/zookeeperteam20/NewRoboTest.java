@@ -450,5 +450,95 @@ public class NewRoboTest {
             }
         });
     }
+
+    @Test
+    public void testSkip(){
+        List<String> stringsPA = new ArrayList<String>();
+        List<String> stringsCM = new ArrayList<String>();
+        List<String> stringsFC = new ArrayList<String>();
+
+        ArrayList<ExhibitItem> ordered = new ArrayList<>();
+
+        stringsFC.add("plants");
+        stringsFC.add("ferns");
+        stringsFC.add("green");
+
+        stringsCM.add("tufted");
+        stringsCM.add("capuchin");
+        stringsCM.add("monkey");
+        stringsCM.add("mammal");
+        stringsCM.add("primate");
+        stringsCM.add("south");
+        stringsCM.add("america");
+
+        Tags tagsPA = new Tags(stringsPA);
+        Tags tagsCM = new Tags(stringsCM);
+        Tags tagsFC = new Tags(stringsFC);
+
+        ordered.add(new ExhibitItem("parker_aviary", "Parker Aviary", ZooData.VertexInfo.Kind.EXHIBITGROUP, tagsPA));
+        ordered.add(new ExhibitItem("fern_canyon", "Fern Canyon", ZooData.VertexInfo.Kind.EXHIBIT, tagsFC));
+        ordered.add(new ExhibitItem("capuchin", "Capuchin Monkeys", ZooData.VertexInfo.Kind.EXHIBIT, tagsCM));
+
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
+        intent.putExtra("Directions", ordered);
+        ActivityScenario<DirectionsActivity> scenario
+                = ActivityScenario.launch(intent);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        scenario.onActivity(activity -> {
+            Button skip = activity.findViewById(R.id.Skip);
+            skip.performClick();
+            assertEquals(activity.ordered.get(1).getExhibitName(), "Capuchin Monkeys");
+        });
+    }
+
+    @Test
+    public void testSettings(){
+        List<String> stringsPA = new ArrayList<String>();
+        List<String> stringsCM = new ArrayList<String>();
+        List<String> stringsFC = new ArrayList<String>();
+
+        ArrayList<ExhibitItem> ordered = new ArrayList<>();
+
+        stringsFC.add("plants");
+        stringsFC.add("ferns");
+        stringsFC.add("green");
+
+        stringsCM.add("tufted");
+        stringsCM.add("capuchin");
+        stringsCM.add("monkey");
+        stringsCM.add("mammal");
+        stringsCM.add("primate");
+        stringsCM.add("south");
+        stringsCM.add("america");
+
+        Tags tagsPA = new Tags(stringsPA);
+        Tags tagsCM = new Tags(stringsCM);
+        Tags tagsFC = new Tags(stringsFC);
+
+        ordered.add(new ExhibitItem("parker_aviary", "Parker Aviary", ZooData.VertexInfo.Kind.EXHIBITGROUP, tagsPA));
+        ordered.add(new ExhibitItem("fern_canyon", "Fern Canyon", ZooData.VertexInfo.Kind.EXHIBIT, tagsFC));
+        ordered.add(new ExhibitItem("capuchin", "Capuchin Monkeys", ZooData.VertexInfo.Kind.EXHIBIT, tagsCM));
+
+        Intent intent = new Intent(ApplicationProvider.getApplicationContext(),  DirectionsActivity.class);
+        intent.putExtra("Directions", ordered);
+        ActivityScenario<DirectionsActivity> scenario
+                = ActivityScenario.launch(intent);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
+        scenario.onActivity(activity -> {
+            Button settings = activity.findViewById(R.id.settings);
+            String previousSource = activity.pathsBetweenExhibits.get(0).getSource();
+            String previousTarget = activity.pathsBetweenExhibits.get(activity.pathsBetweenExhibits.size()-1).getTarget();
+            int previousSize = activity.pathsBetweenExhibits.size();
+            settings.performClick();
+            assertNotEquals(previousSize, activity.currPath.size());
+            assertEquals(previousSource, activity.currPath.get(0).getSource());
+            assertEquals(previousTarget,activity.currPath.get(activity.currPath.size()-1).getTarget());
+        });
+    }
+
 }
 
