@@ -96,10 +96,10 @@
 
     <Button
         android:id="@+id/settings"
-        android:layout_width="122dp"
-        android:layout_height="49dp"
+        android:layout_width="125dp"
+        android:layout_height="52dp"
         android:onClick="onSettingsClicked"
-        android:text="Settings"
+        android:text="Toggle Directions"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
