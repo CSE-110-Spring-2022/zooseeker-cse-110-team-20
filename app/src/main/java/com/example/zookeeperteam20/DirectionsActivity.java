@@ -88,25 +88,6 @@ public class DirectionsActivity extends AppCompatActivity {
         exitItem.setLng(vInfo.get("entrance_exit_gate").lng);
         ordered.add(exitItem);
 
-        /*ExhibitItem e0;
-        for (ZooData.VertexInfo node : vInfo.values()) {
-            e0 = new ExhibitItem(node.id,node.name,node.kind,new Tags(node.tags));
-            if (node.parent_id != null){
-                e0.setParentId(node.parent_id);
-                e0.setParentName(vInfo.get(node.parent_id).name);
-                e0.setLat(vInfo.get(node.parent_id).lat);
-                e0.setLng(vInfo.get(node.parent_id).lng);
-                Log.d("currentLatNameWithParents", node.id);
-                Log.d("currentLatWithParents", vInfo.get(node.parent_id).lat.toString());
-            } else {
-                e0.setLat(vInfo.get(node.id).lat);
-                Log.d("currentLatName", node.name);
-                Log.d("currentLat", vInfo.get(node.id).lat.toString());
-                e0.setLng(vInfo.get(node.id).lng);
-            }
-            ExhibitsList.add(e0);
-            Log.d("ZooData", node.name);
-        }*/
 
         //Refactoring : create ExhibitsList
         createExhibitsList();
@@ -150,24 +131,6 @@ public class DirectionsActivity extends AppCompatActivity {
 //           Log.d("newPath", p.toString());
         }
 
-
-
-
-        //Filter amd swap directions if necessary
-        /*if(whereToCount < ordered.size() ) {
-            for (int i = pathsBetweenExhibits.size() - 1; i >= 0; i--) {
-                if (i == pathsBetweenExhibits.size() - 1) {
-                    if (pathsBetweenExhibits.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                        pathsBetweenExhibits.get(i).swap();
-                    }
-                } else {
-                    if (pathsBetweenExhibits.get(i).getTarget().equals(pathsBetweenExhibits.get(i + 1).getSource()) != true) {
-                        pathsBetweenExhibits.get(i).swap();
-                    }
-                }
-            }
-        }*/
-
         //Refactoring filter class - filters our edges to make sure directions make sense directionally
         Filter filter = new Filter(g,vInfo,eInfo);
         pathsBetweenExhibits = filter.filtAndSwap(whereToCount,ordered,pathsBetweenExhibits);
@@ -205,19 +168,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
             //Filter and swap directions if necessary
             whereToCount++;
-            /*if(whereToCount < ordered.size() ) {
-                for (int i = nextPath.size() - 1; i >= 0; i--) {
-                    if (i == nextPath.size() - 1) {
-                        if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                            nextPath.get(i).swap();
-                        }
-                    } else {
-                        if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                            nextPath.get(i).swap();
-                        }
-                    }
-                }
-            }*/
+
 
             //Refactoring - filters nextPath so directions make sense
             Filter filter = new Filter(g,vInfo,eInfo);
@@ -293,20 +244,6 @@ public class DirectionsActivity extends AppCompatActivity {
             //Log.d("source",prevPath.get(0).getSource());
             Filter filter = new Filter(g,vInfo,eInfo);
             prevPath = filter.filtAndSwap(whereToCount,ordered,prevPath);
-            /*if(whereToCount < ordered.size() ) {
-                for(int i = prevPath.size() - 1; i >= 0 ; i--) {
-                    if (i == prevPath.size() - 1) {
-                        if(prevPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                            prevPath.get(i).swap();
-                        }
-                    } else {
-                        if(prevPath.get(i).getTarget().equals(prevPath.get(i+1).getSource()) != true) {
-                            prevPath.get(i).swap();
-                        }
-                    }
-                }
-            }*/
-
 
             //reverse every path in prevPath so directions make sense
 
@@ -363,34 +300,7 @@ public class DirectionsActivity extends AppCompatActivity {
             //Filter amd swap directions if necessary
             Filter filter = new Filter(g,vInfo,eInfo);
             currPath = filter.filtAndSwap(whereToCount,ordered,currPath);
-            /*if(whereToCount < ordered.size() ) {
-                for (int i = currPath.size() - 1; i >= 0; i--) {
-                    if (i == currPath.size() - 1) {
-                        if (currPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                            currPath.get(i).swap();
-                        }
-                    }
-                    else {
-                        if (currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
-                            currPath.get(i).swap();
-                        }
-                    }
-                }
-            }
-            else {
-                for( int i = currPath.size() - 1; i >= 0; i--) {
-                    if(i == currPath.size() - 1) {
-                        if (currPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
-                            currPath.get(i).swap();
-                        }
-                    }
-                    else {
-                        if(currPath.get(i).getTarget().equals(currPath.get(i + 1).getSource()) != true) {
-                            currPath.get(i).swap();
-                        }
-                    }
-                }
-            }*/
+
             //Check settings of Directions
             if (!dir) {
                 Log.d("b4Brief", currPath.toString());
@@ -437,33 +347,7 @@ public class DirectionsActivity extends AppCompatActivity {
             //Swap directions if Necessary
             Filter filter = new Filter(g,vInfo,eInfo);
             filter.filtAndSwap(whereToCount,ordered,nextPath);
-            /*if(whereToCount < ordered.size() ) {
-                for (int i = nextPath.size() - 1; i >= 0; i--) {
-                    if (i == nextPath.size() - 1) {
-                        if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                            nextPath.get(i).swap();
-                        }
-                    } else {
-                        if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                            nextPath.get(i).swap();
-                        }
-                    }
-                }
-            }
-            else {
-                for( int i = nextPath.size() - 1; i >= 0; i--) {
-                    if(i == nextPath.size() - 1) {
-                        if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
-                            nextPath.get(i).swap();
-                        }
-                    }
-                    else {
-                        if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                            nextPath.get(i).swap();
-                        }
-                    }
-                }
-            }*/
+
             //Check settings of Directions
             if (!dir) {
                 Log.d("b4Brief", nextPath.toString());
@@ -509,20 +393,6 @@ public class DirectionsActivity extends AppCompatActivity {
             //Collections.reverse(prevPath);
             Filter filter = new Filter(g,vInfo,eInfo);
             prevPath = filter.filtAndSwap(whereToCount,ordered,prevPath);
-            /*if(whereToCount < ordered.size() ) {
-                for(int i = prevPath.size() - 1; i >= 0 ; i--) {
-                    if (i == prevPath.size() - 1) {
-                        if(prevPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                            prevPath.get(i).swap();
-                        }
-                    } else {
-                        if(prevPath.get(i).getTarget().equals(prevPath.get(i+1).getSource()) != true) {
-                            prevPath.get(i).swap();
-                        }
-                    }
-                }
-            }*/
-
 
             //Check settings of Directions
             if (!dir) {
@@ -729,33 +599,6 @@ public class DirectionsActivity extends AppCompatActivity {
                             whereToCount++;
                             Filter filter = new Filter(g,vInfo,eInfo);
                             nextPath = filter.filtAndSwap(whereToCount,ordered,nextPath);
-                            /*if(whereToCount < ordered.size() ) {
-                                for (int i = nextPath.size() - 1; i >= 0; i--) {
-                                    if (i == nextPath.size() - 1) {
-                                        if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                                            nextPath.get(i).swap();
-                                        }
-                                    } else {
-                                        if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                                            nextPath.get(i).swap();
-                                        }
-                                    }
-                                }
-                            }
-                            else {
-                                for( int i = nextPath.size() - 1; i >= 0; i--) {
-                                    if(i == nextPath.size() - 1) {
-                                        if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
-                                            nextPath.get(i).swap();
-                                        }
-                                    }
-                                    else {
-                                        if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                                            nextPath.get(i).swap();
-                                        }
-                                    }
-                                }
-                            } */
 
                             if(dir) {
                                 Path bp;
@@ -815,33 +658,7 @@ public class DirectionsActivity extends AppCompatActivity {
                 //Filter and swap directions if necessary
                 Filter filter = new Filter(g,vInfo,eInfo);
                 nextPath = filter.filtAndSwap(whereToCount,ordered,nextPath);
-                /*if(whereToCount < ordered.size() ) {
-                    for (int i = nextPath.size() - 1; i >= 0; i--) {
-                        if (i == nextPath.size() - 1) {
-                            if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                                nextPath.get(i).swap();
-                            }
-                        } else {
-                            if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                                nextPath.get(i).swap();
-                            }
-                        }
-                    }
-                }
-                else {
-                    for( int i = nextPath.size() - 1; i >= 0; i--) {
-                        if(i == nextPath.size() - 1) {
-                            if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
-                                nextPath.get(i).swap();
-                            }
-                        }
-                        else {
-                            if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                                nextPath.get(i).swap();
-                            }
-                        }
-                    }
-                }*/
+
 
                 if(dir) {
                     Path bp;
@@ -959,33 +776,6 @@ public class DirectionsActivity extends AppCompatActivity {
             //Filter and swap directions if necessary
             Filter filter = new Filter(g,vInfo,eInfo);
             nextPath = filter.filtAndSwap(whereToCount,ordered,nextPath);
-            /*if(whereToCount < ordered.size()) {
-                for (int i = nextPath.size() - 1; i >= 0; i--) {
-                    if (i == nextPath.size() - 1) {
-                        if (nextPath.get(i).getTarget().equals(ordered.get(whereToCount).getExhibitName()) != true) {
-                            nextPath.get(i).swap();
-                        }
-                    } else {
-                        if (nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                            nextPath.get(i).swap();
-                        }
-                    }
-                }
-            }
-            else {
-                for( int i = nextPath.size() - 1; i >= 0; i--) {
-                    if(i == nextPath.size() - 1) {
-                        if (nextPath.get(i).getTarget().equals("Entrance and Exit Gate") != true) {
-                            nextPath.get(i).swap();
-                        }
-                    }
-                    else {
-                        if(nextPath.get(i).getTarget().equals(nextPath.get(i + 1).getSource()) != true) {
-                            nextPath.get(i).swap();
-                        }
-                    }
-                }
-            }*/
 
             if(dir) {
                 Path bp;
