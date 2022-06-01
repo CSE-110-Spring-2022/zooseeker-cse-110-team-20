@@ -579,16 +579,21 @@ public class DirectionsActivity extends AppCompatActivity {
 
                             totalList.addAll(visited);
 
-                            /*if (nearestExhibitItem.getParentId() == "NULLNULLNULL") {
-                                totalList.add(nearestExhibitItem);
+                            Log.d("test1", nearestInList.getParentId());
+
+                            if (nearestInList.getParentId().equals("NULLNULLNULL")) {
+                                Log.d("test2", nearestInList.getParentId());
+                                totalList.add(nearestInList);
                             } else {
                                 for (ExhibitItem i : ExhibitsList) {
-                                    if (i.getId().equals(nearestExhibitItem.getParentId())) {
+                                    if (i.getId().equals(nearestInList.getParentId())) {
                                         totalList.add(i);
                                     }
                                 }
 
-                            }*/
+                            }
+
+                            Log.d("totalList", totalList.toString());
 
                             // now assign the new list or plan to ordered
                             totalList.addAll(orderedUnvisited);
