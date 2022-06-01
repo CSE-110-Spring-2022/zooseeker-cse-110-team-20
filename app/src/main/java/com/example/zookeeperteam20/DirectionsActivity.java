@@ -82,7 +82,9 @@ public class DirectionsActivity extends AppCompatActivity {
 
         // Extract ordered from PlanActivity
         ordered = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("Directions");
-        loadProfile();
+        if(ordered == null) {
+            loadProfile();
+        }
         List<String> exitTags = Arrays.asList("enter", "leave", "start", "begin", "entrance", "exit");
         Log.d("Directions UI Ordered", ordered.toString());
 
@@ -299,6 +301,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
     public void onCancelDirectionsClicked(View view) {
         Intent intent = new Intent(this, Zoo_activity.class);
+        ordered.clear();
         startActivity(intent);
     }
 
@@ -575,7 +578,8 @@ public class DirectionsActivity extends AppCompatActivity {
                             ArrayList<ExhibitItem> totalList = new ArrayList<ExhibitItem>();
 
                             totalList.addAll(visited);
-                            if (nearestExhibitItem.getParentId() == "NULLNULLNULL") {
+
+                            /*if (nearestExhibitItem.getParentId() == "NULLNULLNULL") {
                                 totalList.add(nearestExhibitItem);
                             } else {
                                 for (ExhibitItem i : ExhibitsList) {
@@ -583,11 +587,13 @@ public class DirectionsActivity extends AppCompatActivity {
                                         totalList.add(i);
                                     }
                                 }
-//
-                            }
+
+                            }*/
 
                             // now assign the new list or plan to ordered
                             totalList.addAll(orderedUnvisited);
+                            Log.d("visitedTEST",visited.toString());
+                            Log.d("ord",orderedUnvisited.toString());
                             ordered = totalList;
                             ordered.add(exitItem);
                             Log.d("newOrdered", ordered.toString());
@@ -601,7 +607,7 @@ public class DirectionsActivity extends AppCompatActivity {
                             Path p;
 
                             // Create Initial NextPath
-                            count++;
+                            //count++;
                             rou = DijkstraShortestPath.findPathBetween(g,nearest, ordered.get(count).getId());
                             for (IdentifiedWeightedEdge e : rou.getEdgeList()) {
                                 p = new Path(vInfo.get(g.getEdgeSource(e).toString()).name,
@@ -612,7 +618,7 @@ public class DirectionsActivity extends AppCompatActivity {
                             }
 
                             //Filter and swap directions if necessary
-                            whereToCount++;
+                            //whereToCount++;
                             Filter filter = new Filter(g,vInfo,eInfo);
                             nextPath = filter.filtAndSwap(whereToCount,ordered,nextPath);
 
