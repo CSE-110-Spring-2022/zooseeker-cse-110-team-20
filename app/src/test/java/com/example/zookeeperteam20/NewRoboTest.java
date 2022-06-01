@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
@@ -330,7 +331,7 @@ public class NewRoboTest {
         scenario.moveToState(Lifecycle.State.RESUMED);
         scenario.onActivity(activity -> {
             Button next = activity.findViewById(R.id.Next);
-            for(int i = 1; i < ordered.size(); i++){
+            for(int i = 1; i < ordered.size()-1; i++){
                 next.performClick();
                 assertEquals(ordered.get(i).getExhibitName(), activity.nextPath.get(activity.nextPath.size()-1).target);
             }
@@ -374,11 +375,11 @@ public class NewRoboTest {
         scenario.moveToState(Lifecycle.State.RESUMED);
         scenario.onActivity(activity -> {
             Button next = activity.findViewById(R.id.Next);
-            for(int i = 1; i < ordered.size(); i++){
+            for(int i = 0; i < ordered.size(); i++){
                 next.performClick();
             }
-            next.performClick();
-            assertEquals("Entrance and Exit Gate", activity.nextPath.get(activity.nextPath.size()-1).target);
+            //next.performClick();
+            assertEquals(0, activity.nextPath.size());
         });
     }
 
@@ -540,5 +541,33 @@ public class NewRoboTest {
         });
     }
 
-}
+    /*@Test
+    public void testDisplaySelected() {
+        ActivityScenario<Zoo_activity> scenario
+                = ActivityScenario.launch(Zoo_activity.class);
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+        scenario.moveToState(Lifecycle.State.RESUMED);
 
+        scenario.onActivity(activity -> {
+            SearchView search = activity.findViewById(R.id.search);
+            setContentView
+            RecyclerView displayed = activity.findViewById(R.id.exhibit_items);
+
+            ListView list = activity.findViewById(R.id.listview_Exhibits);
+            search.setQuery("a", false);
+            list.performItemClick(
+                    list.getAdapter().getView(0, null, null), 0, 0);
+
+            assertEquals("Bali Mynah", displayed.getChildAt(0));
+
+        });
+    }
+
+    @Test
+    public void retainPlan(){
+
+    }*/
+
+
+}
