@@ -35,6 +35,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
     ArrayList<ExhibitItem> noRepeats = new ArrayList<ExhibitItem>();
     public RecyclerView recyclerView;
     boolean repeat;
+    ExhibitItemDao exhibitDao;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +52,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
 
         Map<String, ZooData.VertexInfo> vInfo = ZooData.loadVertexInfoJSON(this, "zoo_node_info.json");
         Map<String, ZooData.EdgeInfo> eInfo = ZooData.loadEdgeInfoJSON(this, "zoo_edge_info.json");
-        ExhibitItemDao exhibitDao = ExhibitItemDatabase.getSingleton(this).exhibitItemDao();
+        exhibitDao = ExhibitItemDatabase.getSingleton(this).exhibitItemDao();
         List<ExhibitItem> exhibitItems = exhibitDao.getAll();
 
         list = (ListView) findViewById(R.id.listview_Exhibits);
@@ -167,6 +168,7 @@ public class Zoo_activity extends AppCompatActivity implements SearchView.OnQuer
         ExhibitVModel viewModel = new ViewModelProvider(this)
                 .get(ExhibitVModel.class);
         viewModel.clearAll();
+        exhibitDao.clearAll();
         count = 0;
         counter.setText(String.valueOf(count));
         selected.clear();
