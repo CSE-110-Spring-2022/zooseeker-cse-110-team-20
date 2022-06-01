@@ -14,6 +14,7 @@ import android.view.View;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 
@@ -53,7 +54,9 @@ public class Plan_activity extends AppCompatActivity {
         selected = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("plan");
         ExhibitItem parent;
         ArrayList<ExhibitItem> noGroupRepeats = new ArrayList<ExhibitItem>();
-        loadProfile();
+        if(selected == null) {
+            loadProfile();
+        }
         for(ExhibitItem elem : selected){
             if(elem.getParentId().equals("NULLNULLNULL")) {
                 noGroupRepeats.add(elem);

@@ -80,7 +80,9 @@ public class DirectionsActivity extends AppCompatActivity {
 
         // Extract ordered from PlanActivity
         ordered = (ArrayList<ExhibitItem>) getIntent().getSerializableExtra("Directions");
-        loadProfile();
+        if(ordered == null) {
+            loadProfile();
+        }
         List<String> exitTags = Arrays.asList("enter", "leave", "start", "begin", "entrance", "exit");
         Log.d("Directions UI Ordered", ordered.toString());
 
@@ -297,6 +299,7 @@ public class DirectionsActivity extends AppCompatActivity {
 
     public void onCancelDirectionsClicked(View view) {
         Intent intent = new Intent(this, Zoo_activity.class);
+        ordered.clear();
         startActivity(intent);
     }
 
