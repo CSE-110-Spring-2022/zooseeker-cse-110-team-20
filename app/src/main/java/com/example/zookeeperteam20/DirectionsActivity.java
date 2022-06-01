@@ -64,6 +64,8 @@ public class DirectionsActivity extends AppCompatActivity {
     LatLng currentLocation = new LatLng(32.73561, -117.14936);
     ExhibitItem exitItem;
 
+    ExhibitItem nearestInList;
+
     boolean listenToGps = true;
 
     //    @SuppressLint("MissingPermission")
@@ -502,7 +504,6 @@ public class DirectionsActivity extends AppCompatActivity {
             Boolean replan = false;
             // Check if the current location is at an exhibit later in plan
             Double closestDist = Double.POSITIVE_INFINITY;
-            ExhibitItem nearestInList = null;
 
             // This loops through the exhibits on the rest of the list
             // Check if we are closer to any exhibits on the rest of the list, if so, need replan
@@ -550,7 +551,7 @@ public class DirectionsActivity extends AppCompatActivity {
                             unvisited.remove(unvisited.size()-1);
 
                             // Replan the rest of the exhibits
-                            ShortestDistanceGreedy shortestDistanceGreedy = new ShortestDistanceGreedy(g, unvisited, nearestExhibitItem);
+                            ShortestDistanceGreedy shortestDistanceGreedy = new ShortestDistanceGreedy(g, unvisited, nearestInList);
                             List<GraphPath<String, IdentifiedWeightedEdge>> nextHalf = shortestDistanceGreedy.getShortest();
 
                             ArrayList<String> singlePath = new ArrayList<String>();
