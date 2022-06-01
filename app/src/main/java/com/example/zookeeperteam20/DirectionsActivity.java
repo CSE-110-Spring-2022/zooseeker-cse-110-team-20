@@ -512,9 +512,11 @@ public class DirectionsActivity extends AppCompatActivity {
                 GraphPath currentPath = DijkstraShortestPath.findPathBetween(g, nearest, i.getId());
                 Double currentDist = currentPath.getWeight();
 
-                if (currentDist < closestDist) {
-                    closestDist = currentDist;
-                    nearestInList = i;
+                if (!i.getId().equals("entrance_exit_gate")) {
+                    if (currentDist < closestDist) {
+                        closestDist = currentDist;
+                        nearestInList = i;
+                    }
                 }
             }
 
@@ -561,7 +563,9 @@ public class DirectionsActivity extends AppCompatActivity {
                                 singlePath.add(path.getEndVertex());
                             }
 
-
+                            Log.d("nearestInList", nearestInList.toString());
+                            Log.d("unvisited", unvisited.toString());
+                            Log.d("nextHalf", nextHalf.toString());
                             // output the new plan for the unvisited exhibits
                             ArrayList<ExhibitItem> orderedUnvisited = new ArrayList<ExhibitItem>();
                             for (int i = 0; i < singlePath.size(); i++) {
